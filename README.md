@@ -1,2 +1,3 @@
 # std-lib
-fink standard library
+fink standard lib
+

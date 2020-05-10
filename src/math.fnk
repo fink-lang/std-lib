@@ -1,0 +1,72 @@
+
+
+
+Pi = Math.PI
+π = Math.PI
+
+abs = Math.abs
+acos = Math.acos
+acosh = Math.acosh
+asin = Math.asin
+asinh = Math.asinh
+atan = Math.atan
+atan2 = Math.atan2
+atanh = Math.atanh
+cos = Math.cos
+cosh = Math.cosh
+hypot = Math.hypot
+sin = Math.sin
+sinh = Math.sinh
+tan = Math.tan
+tanh = Math.tanh
+
+
+# TODO equiv to e^x
+exp = Math.exp
+# TODO equiv to e^x - 1
+exp_minus_1 = Math.expm1
+
+ceil = Math.ceil
+floor = Math.floor
+round = Math.round
+fround = Math.fround
+
+trunc = Math.trunc
+clz32 = Math.clz32
+
+
+ln = Math.log
+# TODO equiv to ln 1 + x
+ln_1_plus = Math.log1p
+
+log_2 = Math.log2
+log_10 = Math.log10
+
+e = Math.E
+# TODO: equiv to ln 10
+ln_10 = Math.LN10
+# TODO: equiv to ln 2
+ln_2 = Math.LN2
+
+# TODO: equiv to log_10 e
+log_10_e = Math.LOG10E
+
+# TODO: equiv to log_2 e
+log_2_e = Math.LOG2E
+
+cbrt = Math.cbrt
+sqrt = Math.sqrt
+# TODO equiv to sqrt 1/2
+sqrt_1_2 = Math.SQRT1_2
+# TODO equiv to sqrt 2
+sqrt_2 = Math.SQRT2
+
+sign = Math.sign
+
+max = Math.max
+min = Math.min
+
+int_mul = Math.imul
+
+random = Math.random
+

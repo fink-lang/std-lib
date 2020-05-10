@@ -1,0 +1,19 @@
+# TODO: should that live in str?
+parse_float = fn str: parseFloat str
+
+parse_int = fn ...args: parseInt ...args
+
+epsilon = Number.EPSILON
+
+min_int = Number.MIN_SAFE_INTEGER
+max_int = Number.MAX_SAFE_INTEGER
+
+min_value = Number.MIN_VALUE
+max_val = Number.MAX_VALUE
+
+neg_infinity = Number.NEGATIVE_INFINITY
+pos_infinity = Number.POSITIVE_INFINITY
+
+is_not_a_num = isNaN
+
+is_finite = isFinite

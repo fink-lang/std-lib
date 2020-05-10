@@ -1,0 +1,21 @@
+{describe, it, expect, to_equal} = import '@fink/jest'
+
+{json_to_obj, obj_to_json} = import './json'
+
+
+describe 'json', fn:
+  it 'parses', fn:
+    expect
+      json_to_obj
+        '{"foo": [134, "bar"], "spam": [true, false]}'
+      to_equal dict:
+        foo: [134, 'bar']
+        spam: [true, false]
+
+  it 'serializes', fn:
+    expect
+      obj_to_json dict:
+        foo: [134, 'bar']
+        spam: [true, false]
+      to_equal
+        '{"foo":[134,"bar"],"spam":[true,false]}'

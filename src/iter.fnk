@@ -1,0 +1,100 @@
+
+# nth	☑	☐	☐	☑
+# slice	☐	☑	☑	☐
+
+# partition	☑	☑	☐	☑
+# product	☑	☑	☐	☐
+# compress	☐	☑	☑	☐
+# permutations	☐	☑	☑	☐
+
+repeat = unfold item:
+  item
+
+
+count = fn start, step=1:
+  pipe start:
+    unfold value:
+      (value, value + step)
+
+
+enumerate = fn iterable, start=0, step=1:
+  pipe iterable:
+    map item, cntr=start:
+      ([cntr, item], cntr + step)
+
+
+chain = fn ...iterables:
+  pipe iterables:
+    map iterable:
+      ...iterable
+
+
+cycle = fn iterable:
+  pipe [...iterable]:
+    unfold items:
+      (...items, items)
+
+
+flatten = map items: ...items
+
+
+for_each = fn func: fold item, cntr=0:
+  func item
+  cntr + 1
+
+
+reverse = fn iterable:
+  [...iterable].reverse()
+
+
+sort = fn compare: fn iterable:
+  [...iterable].sort compare
+
+
+iterator = fn iterable:
+  iterable.(Symbol.iterator)()
+
+
+unique = fn iterable: new Set iterable
+
+
+next = fn iter:
+  {done, value} = iter.next()
+  [value, done]
+
+
+next_values = fn iters:
+  pipe iters:
+    map iter:
+      [value, done] = next iter
+      ...match done:
+        true: []
+        else: [value]
+
+
+zip = fn ...iterables:
+  [...iters] = pipe iterables:
+    map iterable: iterator iterable
+
+  {length: min_len} = iters
+
+  pipe:
+    unfold:
+      [...next_values iters]
+
+    while {length}:
+      length == min_len
+
+
+length = fn iterable:
+  match iterable:
+    {length: {}}: iterable.length
+    {size: {}}: iterable.size
+    {(Symbol.iterator): {}}: [...iterable].length
+    else: -1
+
+
+# TODO: should this live in str?
+# TODO: should it be fn iterable, sep?
+join = fn sep: fn iterable:
+  [...iterable].join sep

@@ -1,0 +1,14 @@
+
+obj_keys = Object.keys
+
+obj_values = Object.values
+
+obj_key_values = Object.entries
+
+key_values_to_obj = Object.fromEntries
+
+# TODO: move to mutable ?
+set_props = Object.assign
+
+# TODO: move to mutable ?
+set_prop = Reflect.set
