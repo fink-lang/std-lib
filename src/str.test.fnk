@@ -1,0 +1,157 @@
+{describe, it, expect, to_equal} = import '@fink/jest'
+
+{
+  from_char_codes, from_code_points, char_code, code_point
+
+  ends_with, starts_with
+
+  matches, match_all, find_index, split, replace
+
+  slice
+
+  pad_start, pad_end, trim, trim_start, trim_end
+
+  repeat, lower_case, upper_case
+
+  raw, rx
+} = import './str'
+
+
+describe 'string codes', fn:
+  it 'creates char from codes', fn:
+    expect
+      from_char_codes 189, 43, 190, 61
+      to_equal '½+¾='
+
+  it 'creates char from code points', fn:
+    expect
+      from_code_points 9731, 9733, 9842
+      to_equal '☃★♲'
+
+  it 'gets char code', fn:
+    expect
+      char_code '½'
+      to_equal 189
+
+  it 'gets code point', fn:
+    expect
+      code_point '☃'
+      to_equal 9731
+
+
+
+describe 'string assertions', fn:
+  it 'checks string', fn:
+    expect
+      ends_with 'foobar', 'bar'
+      to_equal true
+
+    expect
+      starts_with 'foobar', 'foo'
+      to_equal true
+
+    expect
+      starts_with 'foobar', 'foo'
+      to_equal true
+
+
+
+describe 'regex', fn:
+  it 'matches single', fn:
+    [,spam, ham] = matches 'foobar, spam, ham', rx/,\s*(\w+),\s*(\w+)/
+
+    expect
+      [spam, ham]
+      to_equal
+        ['spam', 'ham']
+
+    expect
+      matches 'foobar', rx/ni/g
+      to_equal
+        []
+
+  it 'matches multiple', fn:
+    [...matches] = pipe match_all 'foobar, spam, ham', rx/(?<=\s).+?am/g:
+      map [m]: m
+
+    expect
+      matches
+      to_equal
+        ['spam', 'ham']
+
+  it 'searches', fn:
+    expect
+      find_index 'foobar, spam, ham', rx/(?<=\s).+?am/g
+      to_equal 8
+
+  it 'splits', fn:
+    expect
+      split 'foobar, spam, ham', rx/\s*,\s*/
+      to_equal
+        ['foobar', 'spam', 'ham']
+
+  it 'replaces', fn:
+    expect
+      replace 'foobar, spam, ham, ni', rx/,.+?am/g, ''
+      to_equal 'foobar, ni'
+
+
+describe 'slice', fn:
+  it 'slices', fn:
+    expect
+      slice '0123456789', 3, 5
+      to_equal '34'
+
+    expect
+      slice '0123456789', -4, -2
+      to_equal '67'
+
+
+describe 'formatting', fn:
+  it 'pads', fn:
+    expect
+      pad_start 'foobar', 10, '.'
+      to_equal '....foobar'
+
+    expect
+      pad_end 'foobar', 10, '.'
+      to_equal 'foobar....'
+
+  it 'trims whitespace', fn:
+    expect
+      trim ' foobar \n'
+      to_equal 'foobar'
+
+    expect
+      trim_start ' \t foobar  '
+      to_equal 'foobar  '
+
+    expect
+      trim_end ' \t foobar  \n'
+      to_equal ' \t foobar'
+
+  it 'repeats', fn:
+     expect
+      repeat '0', 3
+      to_equal '000'
+
+  it 'changes case', fn:
+     expect
+      lower_case 'FOOBAR'
+      to_equal 'foobar'
+
+    expect
+      upper_case 'foobar'
+      to_equal 'FOOBAR'
+
+
+describe 'string templates', fn:
+  expect
+    raw'\a\('
+    to_equal '\\a\\('
+
+  expect
+    rx'\(.+?\)(foo{${1},${4}})'
+    to_equal rx/\(.+?\)(foo{1,4})/
+
+

@@ -1,0 +1,151 @@
+{describe, it, expect, to_equal, mock_fn} = import '@fink/jest'
+
+{
+  repeat, count, enumerate, zip, cycle, chain, reverse, sort, unique, flatten
+  length, join, for_each
+} = import './iter'
+
+{pad_start} = import './str'
+
+
+
+describe 'iter - generating funcs', fn:
+  it 'repeats item forever', fn:
+    [a, b, c] = repeat '.'
+
+    expect
+      [a, b, c]
+      to_equal
+        ['.', '.', '.']
+
+  it 'counts', fn:
+    [a, b, c] = count 0, 2
+    expect
+      [a, b, c]
+      to_equal
+        [0, 2, 4]
+
+
+describe 'iter - transforming funcs', fn:
+  it 'enumerates', fn:
+    expect
+      [...enumerate 'abc']
+      to_equal list:
+        [0, 'a']
+        [1, 'b']
+        [2, 'c']
+
+    expect
+      [...enumerate 'abc', 0, -1]
+      to_equal list:
+        [0, 'a']
+        [-1, 'b']
+        [-2, 'c']
+
+
+  it 'zips iterables into one', fn:
+    expect
+      [...zip 'abc', count 1]
+      to_equal list:
+        ['a', 1]
+        ['b', 2]
+        ['c', 3]
+
+
+  it 'cycles', fn:
+    [a, b, c, d, e] = cycle [1, 2, 3]
+
+    expect
+      [a, b, c, d, e]
+      to_equal
+        [1, 2, 3, 1, 2]
+
+
+  it 'chains multiple iterables', fn:
+    expect
+      [...chain 'abc', [1, 2, 3]]
+      to_equal
+        ['a', 'b', 'c', 1, 2, 3]
+
+
+  it 'creates unique set of items', fn:
+    expect
+      pipe [1, 2, 2, 3]:
+        unique
+        [...?]
+      to_equal
+        [1, 2, 3]
+
+
+  it 'flattens nested iterable', fn:
+    expect
+      [...flatten enumerate 'abc']
+      to_equal
+        [0, 'a', 1, 'b', 2, 'c']
+
+
+  it 'reverses iterable', fn:
+    expect
+      reverse [1, 2, 3]
+      to_equal
+        [3, 2, 1]
+
+
+  it 'sorts iterable', fn:
+    expect
+      pipe ['1', '222', '2', '11']:
+        sort fn a, b:
+          padded_a = pad_start a, 10, ' '
+          padded_b = pad_start b, 10, ' '
+          match padded_a:
+            ? == padded_b: 0
+            ? > padded_b: 1
+            else: -1
+
+      to_equal
+        ['1', '2', '11', '222']
+
+
+describe 'folding funcs', fn:
+  it 'gets length', fn:
+    expect
+      length '1234'
+      to_equal 4
+
+    expect
+      length []
+      to_equal 0
+
+    expect
+      length pipe [1, 2, 2]: unique
+      to_equal 2
+
+    expect
+      length chain 'abc', 'def'
+      to_equal 6
+
+    expect
+      length {}
+      to_equal (-1)
+
+
+  it 'joins iterables with a separator', fn:
+    expect
+      pipe chain 'abc', 'def':
+        join ','
+
+      to_equal
+        'a,b,c,d,e,f'
+
+
+  it 'runs a func for each elem', fn:
+    send_msg = mock_fn()
+
+    pipe 'abc':
+      for_each fn char:
+        send_msg char
+
+    expect
+      length send_msg.mock.calls
+      to_equal 3
+

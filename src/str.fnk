@@ -1,0 +1,46 @@
+
+from_char_codes = String.fromCharCode
+from_code_points = String.fromCodePoint
+
+char_code = fn str, idx: str.charCodeAt idx
+code_point = fn str, idx: str.codePointAt idx
+
+
+# TODO: support offsets?
+ends_with = fn str, end, ...args: str.endsWith end, ...args
+starts_with = fn str, end, ...args: str.startsWith end, ...args
+
+# TODO move to regex module?
+matches = fn str, rx:
+  result = str.match rx
+  match result:
+    {}: result
+    else: []
+match_all = fn str, rx: str.matchAll rx
+find_index = fn str, rx: str.search rx
+split = fn str, rx, ...args: str.split rx, ...args
+replace = fn str, rx, replacement: str.replace rx, replacement
+
+slice = fn str, ...args: str.slice ...args
+
+
+# TODO use string template: fmt`('_',3)${s}`
+pad_start = fn str, target_len, pad_str: str.padStart target_len, pad_str
+pad_end = fn str, target_len, pad_str: str.padEnd target_len, pad_str
+
+
+# TODO could this be handled with '...' - whitespace in loxia?
+trim = fn str: str.trim()
+trim_start = fn str: str.trimStart()
+trim_end = fn str: str.trimEnd()
+
+# TODO should this be handled by '...' * 3 in loxia?
+repeat = fn str, num: str.repeat num
+
+lower_case = fn str: str.toLowerCase()
+upper_case = fn str: str.toUpperCase()
+
+raw = String.raw
+
+rx = fn strings, ...exprs:
+  new RegExp raw strings, ...exprs

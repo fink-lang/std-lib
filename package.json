@@ -1,0 +1,46 @@
+{
+  "name": "@fink/std-lib",
+  "version": "0.0.0-semantically-released",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:fink-lang/std-lib"
+  },
+  "bugs": "https://github.com/fink-lang/std-lib/issues",
+  "homepage": "https://github.com/fink-lang/std-lib",
+  "scripts": {
+    "default": "run clean test build",
+    "clean": "rimraf ./build",
+    "build": "run build:*",
+    "build:dir": "mkdir -p ./build/pkg/",
+    "build:fnk": "fnk --src ./src --out-dir build/pkg --ignore './src/**/*.test.fnk'",
+    "build:files": "cp ./package.json ./README.md ./LICENSE ./build/pkg/",
+    "test": "run jest",
+    "jest": "jest --verbose --runInBand --no-cache ",
+    "cd": "run clean test build release",
+    "release": "semantic-release"
+  },
+  "devDependencies": {
+    "@fink/cli": "^4.0.1",
+    "@fink/jest": "^4.0.0",
+    "@fink/larix": "^8.1.0",
+    "@fink/loxia": "^7.4.0",
+    "commitizen": "^4.0.5",
+    "cz-conventional-changelog": "^3.1.0",
+    "jest-cli": "^26.0.0",
+    "npx-run": "^2.1.2",
+    "semantic-release": "^17.0.7"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
