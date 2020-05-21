@@ -1,0 +1,55 @@
+{describe, it, expect, to_equal} = import '@fink/jest'
+
+{matches, match_all, find_index, split, replace_all, rx} = import './regex'
+
+
+describe 'regex', fn:
+  it 'matches single', fn:
+    expect
+      matches 'foobar', rx/.+oo.+/
+      to_equal
+        true
+
+    expect
+      matches 'foobar', rx/ni/
+      to_equal
+        false
+
+
+  it 'matches multiple', fn:
+    [...matches] = pipe match_all 'foobar, spam, ham', rx/(?<=\s).+?am/:
+      map [m]: m
+
+    expect
+      matches
+      to_equal
+        ['spam', 'ham']
+
+
+  it 'searches', fn:
+    expect
+      find_index 'foobar, spam, ham', rx/(?<=\s).+?am/
+      to_equal 8
+
+
+  it 'splits', fn:
+    expect
+      split 'foobar, spam , ham', rx/\s*,\s*/
+      to_equal
+        ['foobar', 'spam', 'ham']
+
+
+  it 'replaces', fn:
+    expect
+      replace_all 'foobar, spam, ham, ni', rx/,.+?am/, ''
+      to_equal 'foobar, ni'
+
+
+
+describe 'string templates', fn:
+
+  expect
+    rx'\(.+?\)(foo{${1},${4}})'
+    to_equal rx/\(.+?\)(foo{1,4})/
+
+
