@@ -1,0 +1,6 @@
+
+stack_trace = fn func=stack_trace:
+  err = {}
+  Error.captureStackTrace err, func
+  err.stack
+

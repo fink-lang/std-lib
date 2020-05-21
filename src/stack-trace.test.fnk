@@ -1,0 +1,20 @@
+{describe, it, expect, to_equal} = import '@fink/jest'
+
+{replace, split} = import './str'
+
+{stack_trace} = import './stack-trace'
+
+
+describe 'stack_trace', fn:
+  it 'gets stack trace', fn:
+    foo = fn:
+      stack = stack_trace()
+      [, line] = pipe stack:
+        replace ?, rx/\(.+\//mg, '('
+        split ?, '\n'
+      line
+
+    expect
+      foo()
+      to_equal
+        '    at foo (stack-trace.test.fnk:11:15)'

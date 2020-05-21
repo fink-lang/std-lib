@@ -7,8 +7,14 @@ obj_key_values = Object.entries
 
 key_values_to_obj = Object.fromEntries
 
+# TODO: should use in-operator instead
+obj_has = fn obj, key:
+  Object.prototype.hasOwnProperty.call obj, key
+
+
 # TODO: move to mutable ?
 set_props = Object.assign
 
 # TODO: move to mutable ?
 set_prop = Reflect.set
+
