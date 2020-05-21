@@ -1,17 +1,40 @@
 {describe, it, expect, to_equal} = import '@fink/jest'
 
-{parse_int, parse_float} = import './num'
+{parse_int, parse_float, base_n} = import './num'
 
 
 describe 'numbers', fn:
+  it 'parses floats', fn:
+    expect
+      parse_float '1234.567'
+      to_equal
+        1234.567
+
+
   it 'parses integer', fn:
     expect
       parse_int '1234'
       to_equal
         1234
 
-  it 'parses floats', fn:
     expect
-      parse_float '1234.567'
+      parse_int '10011010010', 2
       to_equal
-        1234.567
+        1234
+
+    expect
+      parse_int 'ya', 36
+      to_equal
+        1234
+
+
+  it 'converts to string in base n', fn:
+    expect
+      base_n 1234, 2
+      to_equal
+        '10011010010'
+
+    expect
+      base_n 1234, 36
+      to_equal
+        'ya'

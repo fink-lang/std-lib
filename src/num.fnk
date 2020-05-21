@@ -17,3 +17,5 @@ pos_infinity = Number.POSITIVE_INFINITY
 is_not_a_num = isNaN
 
 is_finite = isFinite
+
+base_n = fn num, radix: num.toString radix
