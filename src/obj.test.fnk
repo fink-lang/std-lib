@@ -2,11 +2,22 @@
 
 {
   obj_keys, obj_values, obj_key_values, key_values_to_obj
-  set_props, set_prop
+  set_props, set_prop, obj_has
 } = import './obj'
 
 
 describe 'objects', fn:
+  it 'has key', fn:
+    expect
+      obj_has {foo: 1, 'bar spam': 2}, 'foo'
+      to_equal
+        true
+
+    expect
+      obj_has {}, 'toString'
+      to_equal
+        false
+
   it 'gets keys', fn:
     expect
       obj_keys {foo: 1, 'bar spam': 2}
