@@ -1,6 +1,6 @@
 {describe, it, expect, to_equal} = import '@fink/jest'
 
-{matches, match_all, find_index, split, replace_all, rx} = import './regex'
+{matches, match_all, find_index, split, replace_all, replace, rx} = import './regex'
 
 
 describe 'regex', fn:
@@ -39,10 +39,16 @@ describe 'regex', fn:
         ['foobar', 'spam', 'ham']
 
 
-  it 'replaces', fn:
+  it 'replaces all', fn:
     expect
       replace_all 'foobar, spam, ham, ni', rx/,.+?am/, ''
       to_equal 'foobar, ni'
+
+
+  it 'replaces single', fn:
+    expect
+      replace 'foobar, spam, ham, ni', rx/,.+?am/, ''
+      to_equal 'foobar, ham, ni'
 
 
 
