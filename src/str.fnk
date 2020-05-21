@@ -10,17 +10,6 @@ code_point = fn str, idx: str.codePointAt idx
 ends_with = fn str, end, ...args: str.endsWith end, ...args
 starts_with = fn str, end, ...args: str.startsWith end, ...args
 
-# TODO move to regex module?
-matches = fn str, rx:
-  result = str.match rx
-  match result:
-    {}: result
-    else: []
-match_all = fn str, rx: str.matchAll rx
-find_index = fn str, rx: str.search rx
-split = fn str, rx, ...args: str.split rx, ...args
-replace = fn str, rx, replacement: str.replace rx, replacement
-
 slice = fn str, ...args: str.slice ...args
 
 
@@ -41,6 +30,3 @@ lower_case = fn str: str.toLowerCase()
 upper_case = fn str: str.toUpperCase()
 
 raw = String.raw
-
-rx = fn strings, ...exprs:
-  new RegExp raw strings, ...exprs

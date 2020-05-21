@@ -56,46 +56,6 @@ describe 'string assertions', fn:
 
 
 
-describe 'regex', fn:
-  it 'matches single', fn:
-    [,spam, ham] = matches 'foobar, spam, ham', rx/,\s*(\w+),\s*(\w+)/
-
-    expect
-      [spam, ham]
-      to_equal
-        ['spam', 'ham']
-
-    expect
-      matches 'foobar', rx/ni/g
-      to_equal
-        []
-
-  it 'matches multiple', fn:
-    [...matches] = pipe match_all 'foobar, spam, ham', rx/(?<=\s).+?am/g:
-      map [m]: m
-
-    expect
-      matches
-      to_equal
-        ['spam', 'ham']
-
-  it 'searches', fn:
-    expect
-      find_index 'foobar, spam, ham', rx/(?<=\s).+?am/g
-      to_equal 8
-
-  it 'splits', fn:
-    expect
-      split 'foobar, spam, ham', rx/\s*,\s*/
-      to_equal
-        ['foobar', 'spam', 'ham']
-
-  it 'replaces', fn:
-    expect
-      replace 'foobar, spam, ham, ni', rx/,.+?am/g, ''
-      to_equal 'foobar, ni'
-
-
 describe 'slice', fn:
   it 'slices', fn:
     expect
@@ -105,6 +65,7 @@ describe 'slice', fn:
     expect
       slice '0123456789', -4, -2
       to_equal '67'
+
 
 
 describe 'formatting', fn:
@@ -145,13 +106,9 @@ describe 'formatting', fn:
       to_equal 'FOOBAR'
 
 
+
 describe 'string templates', fn:
   expect
     raw'\a\('
     to_equal '\\a\\('
-
-  expect
-    rx'\(.+?\)(foo{${1},${4}})'
-    to_equal rx/\(.+?\)(foo{1,4})/
-
 

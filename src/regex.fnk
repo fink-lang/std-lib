@@ -1,0 +1,33 @@
+{raw} = import './str'
+
+
+regex = fn pattern, flags:
+  new RegExp pattern, flags
+
+
+rx = fn strings, ...exprs:
+  regex raw strings, ...exprs
+
+
+match_all = fn str, rx:
+  str.matchAll regex rx, 'g'
+
+
+find_index = fn str, rx:
+  str.search rx
+
+
+split = fn str, rx, ...args:
+  str.split rx, ...args
+
+
+replace = fn str, rx, replacement:
+  str.replace rx, replacement
+
+
+replace_all = fn str, rx, replacement:
+  rxg = regex rx, 'g'
+  str.replace rxg, replacement
+
+
+matches = fn str, rx: rx.test str
