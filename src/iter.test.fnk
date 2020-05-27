@@ -2,7 +2,7 @@
 
 {
   repeat, count, enumerate, zip, cycle, chain, reverse, sort, unique, flatten
-  length, join, for_each
+  length, join, for_each, slice, insert_at, take, drop
 } = import './iter'
 
 {pad_start} = import './str'
@@ -68,6 +68,15 @@ describe 'iter - transforming funcs', fn:
         ['a', 'b', 'c', 1, 2, 3]
 
 
+  it 'inserts items into iterable', fn:
+    expect
+      pipe '123456':
+        insert_at 3, 'abc'
+        join ''
+      to_equal
+        '123abc456'
+
+
   it 'creates unique set of items', fn:
     expect
       pipe [1, 2, 2, 3]:
@@ -104,6 +113,68 @@ describe 'iter - transforming funcs', fn:
 
       to_equal
         ['1', '2', '11', '222']
+
+
+describe 'slice', fn:
+  it 'advances ignores n elements', fn:
+    expect
+      pipe '1234567890':
+        drop 5
+        join ''
+      to_equal '67890'
+
+
+  it 'filters n elements', fn:
+    expect
+      pipe '1234567890':
+        take 5
+        join ''
+      to_equal '12345'
+
+
+  it 'takes 0 length slice', fn:
+    expect
+      pipe count 0:
+        slice 1, 1
+        [...?]
+      to_equal
+        []
+
+
+  it 'takes regular slice', fn:
+    expect
+      pipe count 0:
+        slice 0, 3
+        [...?]
+      to_equal
+        [0, 1, 2]
+
+
+  it 'takes slice from start to end of iterable', fn:
+    expect
+      pipe '0123456789':
+        slice 5
+        [...?]
+      to_equal
+        [...'56789']
+
+
+  it 'takes end-offset slice', fn:
+    expect
+      pipe '0123456789':
+        slice 0, -5
+        [...?]
+      to_equal
+        [...'01234']
+
+    expect
+      pipe '0123456789':
+        # TODO remove parens
+        slice (-5, -1)
+        [...?]
+      to_equal
+        [...'5678']
+
 
 
 describe 'folding funcs', fn:
