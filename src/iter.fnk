@@ -1,11 +1,10 @@
+{max_int} = import './num'
 
-# nth	☑	☐	☐	☑
-# slice	☐	☑	☑	☐
-
-# partition	☑	☑	☐	☑
-# product	☑	☑	☐	☐
-# compress	☐	☑	☑	☐
-# permutations	☐	☑	☑	☐
+# TODO add:
+# partition
+# product
+# compress
+# permutations
 
 repeat = unfold item:
   item
@@ -27,6 +26,16 @@ chain = fn ...iterables:
   pipe iterables:
     map iterable:
       ...iterable
+
+
+insert_at = fn idx, insert_items: fn items:
+  pipe items:
+    map item, curr=0:
+      all = match curr:
+        idx: chain insert_items, [item]
+        else: [item]
+
+      (...all, curr + 1)
 
 
 cycle = fn iterable:
@@ -51,22 +60,44 @@ sort = fn compare: fn iterable:
   [...iterable].sort compare
 
 
-iterator = fn iterable:
-  iterable.(Symbol.iterator)()
-
-
 unique = fn iterable: new Set iterable
 
 
-next = fn iter:
-  {done, value} = iter.next()
-  [value, done]
+
+drop = fn num_items: fn items:
+  pipe items:
+    map item, idx=0: ([item, idx], idx + 1)
+    # TODO: should loxia add an accu to filter?
+    filter [, idx]: idx >= num_items
+    map [item]: item
 
 
-next_values = fn iters:
+take = fn num_items: fn items:
+  iter = items.(Symbol.iterator)()
+  pipe count 0:
+    while ctr: ctr < num_items
+    map _: iter.next()
+    while {done}: done == false
+    map {value}: value
+
+
+slice = fn start, end=max_int: fn items:
+  match start:
+    ? + end < 0:
+      # TODO: use a sliding buffer while iterating over items
+      [...items].slice start, end
+
+    else:
+      pipe items:
+        drop start
+        take end - start
+
+
+_next_values = fn iters:
   pipe iters:
+    # TODO should we stop getting next item if any are done?
     map iter:
-      [value, done] = next iter
+      {value, done} = iter.next()
       ...match done:
         true: []
         else: [value]
@@ -74,16 +105,17 @@ next_values = fn iters:
 
 zip = fn ...iterables:
   [...iters] = pipe iterables:
-    map iterable: iterator iterable
+    map iterable: iterable.(Symbol.iterator)()
 
   {length: min_len} = iters
 
   pipe:
     unfold:
-      [...next_values iters]
+      [..._next_values iters]
 
     while {length}:
       length == min_len
+
 
 
 length = fn iterable:

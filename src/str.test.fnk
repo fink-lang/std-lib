@@ -14,6 +14,8 @@
   repeat, lower_case, upper_case
 
   raw, rx
+
+  encode, decode
 } = import './str'
 
 
@@ -111,4 +113,18 @@ describe 'string templates', fn:
   expect
     raw'\a\('
     to_equal '\\a\\('
+
+
+
+describe 'codecs', fn:
+  it 'encodes strings', fn:
+     expect
+      encode 'foobar', 'utf-8'
+      to_equal Uint8Array.from([102, 111, 111, 98, 97, 114])
+
+  it 'decodes strings', fn:
+     expect
+      decode Uint8Array.from([102, 111, 111, 98, 97, 114]), 'utf-8'
+      to_equal 'foobar'
+
 

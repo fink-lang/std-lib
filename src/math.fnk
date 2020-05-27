@@ -66,6 +66,9 @@ sign = Math.sign
 max = Math.max
 min = Math.min
 
+clamp = fn min_val, value, max_val:
+  max min_val, min value, max_val
+
 int_mul = Math.imul
 
 random = Math.random

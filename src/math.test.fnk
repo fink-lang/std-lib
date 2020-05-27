@@ -1,6 +1,6 @@
 {describe, it, expect, to_equal} = import '@fink/jest'
 
-{π} = import './math'
+{π, clamp} = import './math'
 
 
 describe 'math', fn:
@@ -8,4 +8,14 @@ describe 'math', fn:
     expect
       π
       to_equal Math.PI
+
+
+  it 'clamp', fn:
+    expect
+      clamp 0, -1, 2
+      to_equal 0
+
+    expect
+      clamp 0, 3, 2
+      to_equal 2
 

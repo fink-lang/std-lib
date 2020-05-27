@@ -1,0 +1,47 @@
+{describe, it, expect, to_equal, mock_fn} = import '@fink/jest'
+
+{parallel, sequential} = import './async'
+
+
+run_task = fn name, handler:
+  await handler '${name} start'
+  await handler '${name} end'
+
+
+describe 'async', fn:
+  it 'waits for tasks in parallel', fn:
+    handler = mock_fn()
+
+    await pipe 'abc':
+      map item: run_task item, handler
+      parallel
+
+    expect
+      handler.mock.calls
+      to_equal list:
+        ['a start']
+        ['b start']
+        ['c start']
+        ['a end']
+        ['b end']
+        ['c end']
+
+
+
+  it 'pulls tasks sequentially', fn:
+    handler = mock_fn()
+
+    await pipe 'abc':
+      map item: run_task item, handler
+      sequential
+
+    expect
+      handler.mock.calls
+      to_equal list:
+        ['a start']
+        ['a end']
+        ['b start']
+        ['b end']
+        ['c start']
+        ['c end']
+
