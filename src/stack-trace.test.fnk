@@ -8,13 +8,13 @@
 describe 'stack_trace', fn:
   it 'gets stack trace', fn:
     foo = fn:
-      stack = stack_trace()
+      stack = stack_trace _
       [, line] = pipe stack:
         replace_all ?, rx/\(.+\//, '('
         split ?, '\n'
       line
 
     expect
-      foo()
+      foo _
       to_equal
         '    at foo (stack-trace.test.fnk:11:15)'
