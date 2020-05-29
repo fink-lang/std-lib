@@ -10,7 +10,7 @@ run_task = fn name, handler:
 
 describe 'async', fn:
   it 'waits for tasks in parallel', fn:
-    handler = mock_fn()
+    handler = mock_fn _
 
     await pipe 'abc':
       map item: run_task item, handler
@@ -29,7 +29,7 @@ describe 'async', fn:
 
 
   it 'pulls tasks sequentially', fn:
-    handler = mock_fn()
+    handler = mock_fn _
 
     await pipe 'abc':
       map item: run_task item, handler

@@ -53,7 +53,7 @@ for_each = fn func: fold item, cntr=0:
 
 
 reverse = fn iterable:
-  [...iterable].reverse()
+  [...iterable].reverse _
 
 
 sort = fn compare: fn iterable:
@@ -73,10 +73,10 @@ drop = fn num_items: fn items:
 
 
 take = fn num_items: fn items:
-  iter = items.(Symbol.iterator)()
+  iter = items.(Symbol.iterator) _
   pipe count 0:
     while ctr: ctr < num_items
-    map _: iter.next()
+    map ctr: iter.next _
     while {done}: done == false
     map {value}: value
 
@@ -97,7 +97,7 @@ _next_values = fn iters:
   pipe iters:
     # TODO should we stop getting next item if any are done?
     map iter:
-      {value, done} = iter.next()
+      {value, done} = iter.next _
       ...match done:
         true: []
         else: [value]
@@ -105,7 +105,7 @@ _next_values = fn iters:
 
 zip = fn ...iterables:
   [...iters] = pipe iterables:
-    map iterable: iterable.(Symbol.iterator)()
+    map iterable: iterable.(Symbol.iterator) _
 
   {length: min_len} = iters
 
