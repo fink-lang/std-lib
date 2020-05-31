@@ -125,6 +125,9 @@ length = fn iterable:
     else: -1
 
 
+is_empty = 0 == length ?
+
+
 # TODO: should this live in str?
 # TODO: should it be fn iterable, sep?
 join = fn sep: fn iterable:
