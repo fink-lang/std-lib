@@ -66,19 +66,18 @@ unique = fn iterable: new Set iterable
 
 drop = fn num_items: fn items:
   pipe items:
-    map item, idx=0: ([item, idx], idx + 1)
-    # TODO: should loxia add an accu to filter?
-    filter [, idx]: idx >= num_items
-    map [item]: item
+    filter , idx=0:
+      (idx >= num_items, idx + 1)
 
 
 take = fn num_items: fn items:
-  iter = items.(Symbol.iterator) _
-  pipe count 0:
-    while ctr: ctr < num_items
-    map ctr: iter.next _
-    while {done}: done == false
-    map {value}: value
+  match num_items:
+    0:
+      []
+    else:
+      pipe items:
+        until , ctr=1:
+          (ctr >= num_items, ctr + 1)
 
 
 slice = fn start, end=max_int: fn items:
