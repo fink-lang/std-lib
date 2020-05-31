@@ -2,7 +2,7 @@
 
 {
   repeat, count, enumerate, zip, cycle, chain, reverse, sort, unique, flatten
-  length, join, for_each, slice, insert_at, take, drop
+  length, is_empty, join, for_each, slice, insert_at, take, drop
 } = import './iter'
 
 {pad_start} = import './str'
@@ -198,6 +198,24 @@ describe 'folding funcs', fn:
     expect
       length {}
       to_equal (-1)
+
+
+  it 'checks if iterable is empty', fn:
+    expect
+      is_empty ''
+      to_equal true
+
+    expect
+      is_empty []
+      to_equal true
+
+    expect
+      is_empty 'foo'
+      to_equal false
+
+    expect
+      is_empty [1]
+      to_equal false
 
 
   it 'joins iterables with a separator', fn:
