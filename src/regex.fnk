@@ -1,8 +1,8 @@
 {raw} = import './str'
 
 
-regex = fn pattern, flags:
-  new RegExp pattern, flags
+regex = fn pattern, flags='':
+  new RegExp pattern, 'u${flags}'
 
 
 ---
@@ -18,11 +18,14 @@ reg = rx'
 ```
 ---
 rx = fn strings, ...exprs:
-  ingorables = regex raw'(\s*#.*\n)|(\n\s*)'
+  ingorables = regex raw'(\s+#.*\n)|(\n\s*)'
+  comment_esc = regex raw'\\#'
 
   [...parts] = pipe strings.raw:
     map part:
-      replace_all part, ingorables, ''
+      pipe part:
+        replace_all ?, ingorables, ''
+        replace_all ?, comment_esc, '#'
 
   regex raw {raw: parts}, ...exprs
 
