@@ -1,6 +1,6 @@
 {describe, it, expect, to_equal} = import '@fink/jest'
 
-{replace_all, split} = import './regex'
+{rx, replace_all, split} = import './regex'
 
 {stack_trace} = import './stack-trace'
 
@@ -10,7 +10,7 @@ describe 'stack_trace', fn:
     foo = fn:
       stack = stack_trace _
       [, line] = pipe stack:
-        replace_all ?, rx/\(.+\//, '('
+        replace_all ?, rx'\(.+/', '('
         split ?, '\n'
       line
 
