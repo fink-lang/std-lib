@@ -5,8 +5,26 @@ regex = fn pattern, flags:
   new RegExp pattern, flags
 
 
+---
+Create a regex for the given raw string.
+
+e.g.
+```
+reg = rx'
+  (?<year>\d{4})-    # year part of a date
+  (?<month>\d{2})-   # month part of a date
+  (?<day>\d{2})      # day part of a date
+'
+```
+---
 rx = fn strings, ...exprs:
-  regex raw strings, ...exprs
+  ingorables = regex raw'(\#.*\n)|[\n\s]'
+
+  [...parts] = pipe strings.raw:
+    map part:
+      replace_all part, ingorables, ''
+
+  regex raw {raw: parts}, ...exprs
 
 
 match_all = fn str, rx:

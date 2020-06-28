@@ -6,18 +6,18 @@
 describe 'regex', fn:
   it 'matches single', fn:
     expect
-      matches 'foobar', rx/.+oo.+/
+      matches 'foobar', rx'.+oo.+'
       to_equal
         true
 
     expect
-      matches 'foobar', rx/ni/
+      matches 'foobar', rx'ni'
       to_equal
         false
 
 
   it 'matches multiple', fn:
-    [...matches] = pipe match_all 'foobar, spam, ham', rx/(?<=\s).+?am/:
+    [...matches] = pipe match_all 'foobar, spam, ham', rx'(?<=\s).+?am':
       map [m]: m
 
     expect
@@ -28,34 +28,43 @@ describe 'regex', fn:
 
   it 'searches', fn:
     expect
-      find_index 'foobar, spam, ham', rx/(?<=\s).+?am/
+      find_index 'foobar, spam, ham', rx'(?<=\s).+?am'
       to_equal 8
 
 
   it 'splits', fn:
     expect
-      split 'foobar, spam , ham', rx/\s*,\s*/
+      split 'foobar, spam , ham', rx'\s*,\s*'
       to_equal
         ['foobar', 'spam', 'ham']
 
 
   it 'replaces all', fn:
     expect
-      replace_all 'foobar, spam, ham, ni', rx/,.+?am/, ''
+      replace_all 'foobar, spam, ham, ni', rx',.+?am', ''
       to_equal 'foobar, ni'
 
 
   it 'replaces single', fn:
     expect
-      replace 'foobar, spam, ham, ni', rx/,.+?am/, ''
+      replace 'foobar, spam, ham, ni', rx',.+?am', ''
       to_equal 'foobar, ham, ni'
 
 
 
 describe 'string templates', fn:
+  it 'creates a regex', fn:
+    expect
+      rx'\(.+?\)(foo{${1},${4}})'
+      to_equal rx'\(.+?\)(foo{1,4})'
 
-  expect
-    rx'\(.+?\)(foo{${1},${4}})'
-    to_equal rx/\(.+?\)(foo{1,4})/
 
+  it 'handles multiline commented regex', fn:
+    expect
+      rx'
+        (?<year>\d{4})-    # year part of a date
+        (?<month>\d{2})-   # month part of a date
+        (?<day>\d{2})      # day part of a date
+      '
+      to_equal rx'(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})'
 
