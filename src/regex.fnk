@@ -18,7 +18,7 @@ reg = rx'
 ```
 ---
 rx = fn strings, ...exprs:
-  ingorables = regex raw'(\#.*\n)|[\n\s]'
+  ingorables = regex raw'(\s*#.*\n)|(\n\s*)'
 
   [...parts] = pipe strings.raw:
     map part:
