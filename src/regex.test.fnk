@@ -62,22 +62,25 @@ describe 'string templates', fn:
   it 'handles multiline commented regex', fn:
     expect
       rx'
-        (?<year>\d{4})-    # year part of a date
+        (?<year>\d{4})-   # year part of a date
         (?<month>\d{2})-  # month part of a date
-        (?<day>\d{2})      # day part of a date
+        (?<day>\d{2})     # day part of a date
       '
       to_equal rx'(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})'
 
 
-  it 'handles escaping comment', fn:
+  it 'handles escaping', fn:
     expect
-      rx'foo\#bar'
-      to_equal regex 'foo\\#bar'
+      rx'
+        \'\"\`
+        foo \# bar
+        \${2}
+        \\*
+      '
+      to_equal regex `'"\`foo # bar\\\${2}\\\\*`
 
 
   it 'handles spaces', fn:
     expect
       rx'[ ]{3}'
       to_equal regex '[ ]{3}'
-
-

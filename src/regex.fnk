@@ -1,8 +1,8 @@
 {raw} = import './str'
 
 
-regex = fn pattern, flags:
-  new RegExp pattern, flags
+regex = fn pattern, flags='':
+  new RegExp pattern, 'u${flags}'
 
 
 ---
@@ -18,11 +18,15 @@ reg = rx'
 ```
 ---
 rx = fn strings, ...exprs:
-  ingorables = regex raw'(\s*#.*\n)|(\n\s*)'
+  # implement in loxia or larix for optimization
+  ingorables = regex raw'(\s+#.*\n)|(\n\s*)'
+  esc = regex raw`(^|[^\\])((\\{2})*)\\(?=[#'"${'`'}'])`
 
   [...parts] = pipe strings.raw:
     map part:
-      replace_all part, ingorables, ''
+      pipe part:
+        replace_all ?, ingorables, ''
+        replace_all ?, esc, '$1$3'
 
   regex raw {raw: parts}, ...exprs
 
