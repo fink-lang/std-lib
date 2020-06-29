@@ -18,8 +18,8 @@ reg = rx'
 ```
 ---
 rx = fn strings, ...exprs:
+  # implement in loxia or larix for optimization
   ingorables = regex raw'(\s+#.*\n)|(\n\s*)'
-  # esc = regex raw`\\([#'"${'`'}])`
   esc = regex raw`(^|[^\\])((\\{2})*)\\(?=[#'"${'`'}'])`
 
   [...parts] = pipe strings.raw:
