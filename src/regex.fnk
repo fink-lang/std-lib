@@ -19,13 +19,14 @@ reg = rx'
 ---
 rx = fn strings, ...exprs:
   ingorables = regex raw'(\s+#.*\n)|(\n\s*)'
-  comment_esc = regex raw'\\#'
+  # esc = regex raw`\\([#'"${'`'}])`
+  esc = regex raw`(^|[^\\])((\\{2})*)\\(?=[#'"${'`'}'])`
 
   [...parts] = pipe strings.raw:
     map part:
       pipe part:
         replace_all ?, ingorables, ''
-        replace_all ?, comment_esc, '#'
+        replace_all ?, esc, '$1$3'
 
   regex raw {raw: parts}, ...exprs
 
