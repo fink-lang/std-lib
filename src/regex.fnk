@@ -1,8 +1,10 @@
+{new} = import '@fink/js-interop/reflect'
 {raw} = import './str'
 
 
 regex = fn pattern, flags='':
-  new RegExp pattern, 'u${flags}'
+  # TODO: should @fink/js-interop provide the regexp function?
+  new RegExp, pattern, 'u${flags}'
 
 
 ---
@@ -20,7 +22,7 @@ reg = rx'
 rx = fn strings, ...exprs:
   # implement in loxia or larix for optimization
   ingorables = regex raw'(\s+#.*\n)|(\n\s*)'
-  esc = regex raw`(^|[^\\])((\\{2})*)\\(?=[#'"${'`'}'])`
+  esc = regex raw'(^|[^\\])((\\{2})*)\\(?=[#${'\'"`'}])'
 
   [...parts] = pipe strings.raw:
     map part:

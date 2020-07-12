@@ -1,8 +1,7 @@
 {describe, it, expect, to_equal} = import '@fink/jest'
 
 {
-  obj_keys, obj_values, obj_key_values, key_values_to_obj
-  set_props, set_prop, obj_has
+  obj_keys, obj_values, obj_key_values, key_values_to_obj, obj_has
 } = import './obj'
 
 
@@ -47,23 +46,3 @@ describe 'objects', fn:
         ['bar spam', 2]
       to_equal
         {foo: 1, 'bar spam': 2}
-
-
-  it 'mutates object with single prop', fn:
-    foo = {foo: 1}
-
-    set_prop foo, 'bar', 2
-
-    expect
-      foo
-      to_equal {foo: 1, bar: 2}
-
-
-  it 'mutates object with new props', fn:
-    foo = {foo: 1}
-
-    set_props foo, {bar: 2, spam: 3}
-
-    expect
-      foo
-      to_equal {foo: 1, bar: 2, spam: 3}

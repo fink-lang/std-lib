@@ -1,4 +1,5 @@
 {max_int} = import './num'
+{new} = import '@fink/js-interop/reflect'
 
 # TODO add:
 # partition
@@ -60,7 +61,7 @@ sort = fn compare: fn iterable:
   [...iterable].sort compare
 
 
-unique = fn iterable: new Set iterable
+unique = fn iterable: new Set, iterable
 
 
 

@@ -1,3 +1,5 @@
+{new} = import '@fink/js-interop/reflect'
+
 
 from_char_codes = String.fromCharCode
 from_code_points = String.fromCodePoint
@@ -33,10 +35,10 @@ raw = String.raw
 
 
 encode = fn text, encoding:
-  encoder = new TextEncoder encoding
+  encoder = new TextEncoder, encoding
   encoder.encode text
 
 
 decode = fn bytes, encoding:
-  encoder = new TextDecoder encoding
+  encoder = new TextDecoder, encoding
   encoder.decode bytes
