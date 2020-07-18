@@ -1,3 +1,5 @@
+{Object} = import '@fink/js-interop/globals'
+
 
 obj_keys = Object.keys
 

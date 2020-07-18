@@ -1,4 +1,6 @@
 {new} = import '@fink/js-interop/reflect'
+{is_instance, get_type} = import '@fink/js-interop/reflect'
+{String, TextEncoder, TextDecoder} = import '@fink/js-interop/globals'
 
 
 from_char_codes = String.fromCharCode
@@ -25,6 +27,7 @@ trim = fn str: str.trim _
 trim_start = fn str: str.trimStart _
 trim_end = fn str: str.trimEnd _
 
+
 # TODO should this be handled by '...' * 3 in loxia?
 repeat = fn str, num: str.repeat num
 
@@ -42,3 +45,10 @@ encode = fn text, encoding:
 decode = fn bytes, encoding:
   encoder = new TextDecoder, encoding
   encoder.decode bytes
+
+
+is_str = fn str:
+  match str:
+    'string' == get_type ?: true
+    is_instance ?, String: true
+    else: false

@@ -1,9 +1,10 @@
 {new} = import '@fink/js-interop/reflect'
+{RegExp} = import '@fink/js-interop/globals'
+
 {raw} = import './str'
 
 
 regex = fn pattern, flags='':
-  # TODO: should @fink/js-interop provide the regexp function?
   new RegExp, pattern, 'u${flags}'
 
 

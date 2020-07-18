@@ -1,11 +1,12 @@
 {describe, it, expect, to_equal} = import '@fink/jest'
+{new} = import '@fink/js-interop/reflect'
+{Uint8Array, String} = import '@fink/js-interop/globals'
+
 
 {
   from_char_codes, from_code_points, char_code, code_point
 
   ends_with, starts_with
-
-  matches, match_all, find_index, split, replace
 
   slice
 
@@ -13,9 +14,11 @@
 
   repeat, lower_case, upper_case
 
-  raw, rx
+  raw
 
   encode, decode
+
+  is_str
 } = import './str'
 
 
@@ -129,4 +132,20 @@ describe 'codecs', fn:
         'utf-8'
       to_equal 'foobar'
 
+
+
+describe 'is_str', fn:
+  it 'is a string', fn:
+    expect
+      is_str 'foobar'
+      to_equal true
+
+    expect
+      is_str new String, 1234
+      to_equal true
+
+  it 'is not a string', fn:
+    expect
+      is_str 1234
+      to_equal false
 

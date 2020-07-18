@@ -1,5 +1,6 @@
 {max_int} = import './num'
 {new} = import '@fink/js-interop/reflect'
+{Symbol, Set} = import '@fink/js-interop/globals'
 
 # TODO add:
 # partition
