@@ -1,3 +1,5 @@
+{Error} = import '@fink/js-interop/globals'
+
 
 stack_trace = fn func=stack_trace:
   err = {}

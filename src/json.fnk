@@ -1,3 +1,5 @@
+{JSON} = import '@fink/js-interop/globals'
+
 json_to_obj = JSON.parse
 
 obj_to_json = JSON.stringify
