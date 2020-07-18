@@ -1,6 +1,8 @@
 {describe, it, expect, to_equal} = import '@fink/jest'
+{new} = import '@fink/js-interop/reflect'
+{Number} = import '@fink/js-interop/globals'
 
-{parse_int, parse_float, base_n} = import './num'
+{parse_int, parse_float, base_n, is_num} = import './num'
 
 
 describe 'numbers', fn:
@@ -38,3 +40,20 @@ describe 'numbers', fn:
       base_n 1234, 36
       to_equal
         'ya'
+
+
+
+describe 'is_num', fn:
+  it 'is a number', fn:
+    expect
+      is_num 1234
+      to_equal true
+
+    expect
+      is_num new Number, 1234
+      to_equal true
+
+  it 'is not a number', fn:
+    expect
+      is_num '1234'
+      to_equal false

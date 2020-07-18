@@ -1,3 +1,7 @@
+{parseFloat, parseInt, Number, isNaN, isFinite} = import '@fink/js-interop/globals'
+{is_instance, get_type} = import '@fink/js-interop/reflect'
+
+
 # TODO: should that live in str?
 parse_float = fn str: parseFloat str
 
@@ -19,3 +23,10 @@ is_not_a_num = isNaN
 is_finite = isFinite
 
 base_n = fn num, radix: num.toString radix
+
+
+is_num = fn num:
+  match num:
+    'number' == get_type ?: true
+    is_instance ?, Number: true
+    else: false
