@@ -28,10 +28,10 @@
     "release": "semantic-release"
   },
   "devDependencies": {
-    "@fink/cli": "^6.0.0",
-    "@fink/jest": "^5.0.0",
+    "@fink/cli": "^6.1.0",
+    "@fink/jest": "^5.1.0",
     "@fink/larix": "^12.0.0",
-    "@fink/loxia": "^12.0.0",
+    "@fink/loxia": "^12.0.2",
     "commitizen": "^4.0.5",
     "cz-conventional-changelog": "^3.1.0",
     "jest-cli": "^26.1.0",
@@ -44,6 +44,6 @@
     }
   },
   "dependencies": {
-    "@fink/js-interop": "^1.0.0"
+    "@fink/js-interop": "^1.1.0"
   }
 }
