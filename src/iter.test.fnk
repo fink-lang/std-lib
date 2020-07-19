@@ -76,6 +76,20 @@ describe 'iter - transforming funcs', fn:
       to_equal
         '123abc456'
 
+    expect
+      pipe '1':
+        insert_at 0, 'abc'
+        join ''
+      to_equal
+        'abc1'
+
+    expect
+      pipe '1':
+        insert_at 1, 'abc'
+        join ''
+      to_equal
+        '1abc'
+
 
   it 'creates unique set of items', fn:
     expect

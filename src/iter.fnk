@@ -30,14 +30,23 @@ chain = fn ...iterables:
       ...iterable
 
 
+
 insert_at = fn idx, insert_items: fn items:
+  ignore = {}
+
   pipe items:
+    chain ?, [ignore]
+
     map item, curr=0:
       all = match curr:
         idx: chain insert_items, [item]
         else: [item]
 
       (...all, curr + 1)
+
+    filter item:
+      item != ignore
+
 
 
 cycle = fn iterable:
