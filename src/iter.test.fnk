@@ -2,7 +2,7 @@
 
 {
   repeat, count, enumerate, zip, cycle, chain, reverse, sort, unique, flatten
-  length, is_empty, join, slice, insert_at, take, drop
+  length, is_empty, join, slice, insert_at, take, drop, compress
 } = import './iter'
 
 {pad_start} = import './str'
@@ -127,6 +127,16 @@ describe 'iter - transforming funcs', fn:
 
       to_equal
         ['1', '2', '11', '222']
+
+
+  it 'compresses items', fn:
+    expect
+      pipe [1, 2, 3, 4]:
+        compress ?, [true, false, false, true]
+        [...?]
+      to_equal
+        [1, 4]
+
 
 
 describe 'slice', fn:
