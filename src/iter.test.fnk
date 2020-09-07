@@ -1,8 +1,8 @@
-{describe, it, expect, to_equal, mock_fn} = import '@fink/jest'
+{describe, it, expect, to_equal} = import '@fink/jest'
 
 {
   repeat, count, enumerate, zip, cycle, chain, reverse, sort, unique, flatten
-  length, is_empty, join, for_each, slice, insert_at, take, drop
+  length, is_empty, join, slice, insert_at, take, drop, compress
 } = import './iter'
 
 {pad_start} = import './str'
@@ -129,6 +129,16 @@ describe 'iter - transforming funcs', fn:
         ['1', '2', '11', '222']
 
 
+  it 'compresses items', fn:
+    expect
+      pipe [1, 2, 3, 4]:
+        compress ?, [true, false, false, true]
+        [...?]
+      to_equal
+        [1, 4]
+
+
+
 describe 'slice', fn:
   it 'advances ignores n elements', fn:
     expect
@@ -183,8 +193,7 @@ describe 'slice', fn:
 
     expect
       pipe '0123456789':
-        # TODO remove parens (larix needs to handle that)
-        slice (-5), -1
+        slice -5, -1
         [...?]
       to_equal
         [...'5678']
@@ -240,15 +249,4 @@ describe 'folding funcs', fn:
       to_equal
         'a,b,c,d,e,f'
 
-
-  it 'runs a func for each elem', fn:
-    send_msg = mock_fn _
-
-    pipe 'abc':
-      for_each fn char:
-        send_msg char
-
-    expect
-      length send_msg.mock.calls
-      to_equal 3
 

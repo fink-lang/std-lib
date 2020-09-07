@@ -17,18 +17,15 @@ starts_with = fn str, end, ...args: str.startsWith end, ...args
 slice = fn str, ...args: str.slice ...args
 
 
-# TODO use string template: fmt`('_',3)${s}`
 pad_start = fn str, target_len, pad_str: str.padStart target_len, pad_str
 pad_end = fn str, target_len, pad_str: str.padEnd target_len, pad_str
 
 
-# TODO could this be handled with '...' - whitespace in loxia?
 trim = fn str: str.trim _
 trim_start = fn str: str.trimStart _
 trim_end = fn str: str.trimEnd _
 
 
-# TODO should this be handled by '...' * 3 in loxia?
 repeat = fn str, num: str.repeat num
 
 lower_case = fn str: str.toLowerCase _
