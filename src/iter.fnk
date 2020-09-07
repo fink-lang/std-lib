@@ -5,11 +5,14 @@
 # TODO add:
 # partition
 # product
-# compress
+# combinations
 # permutations
+
+
 
 repeat = unfold item:
   item
+
 
 
 count = fn start, step=1:
@@ -18,10 +21,12 @@ count = fn start, step=1:
       (value, value + step)
 
 
+
 enumerate = fn iterable, start=0, step=1:
   pipe iterable:
     map item, cntr=start:
       ([cntr, item], cntr + step)
+
 
 
 chain = fn ...iterables:
@@ -55,20 +60,19 @@ cycle = fn iterable:
       (...items, items)
 
 
+
 flatten = map items: ...items
 
-
-for_each = fn func: fold item, cntr=0:
-  func item
-  cntr + 1
 
 
 reverse = fn iterable:
   [...iterable].reverse _
 
 
+
 sort = fn compare: fn iterable:
   [...iterable].sort compare
+
 
 
 unique = fn iterable: new Set, iterable
@@ -81,6 +85,7 @@ drop = fn num_items: fn items:
       (idx >= num_items, idx + 1)
 
 
+
 take = fn num_items: fn items:
   match num_items:
     0:
@@ -89,6 +94,7 @@ take = fn num_items: fn items:
       pipe items:
         until , ctr=1:
           (ctr >= num_items, ctr + 1)
+
 
 
 slice = fn start, end=max_int: fn items:
@@ -103,6 +109,7 @@ slice = fn start, end=max_int: fn items:
         take end - start
 
 
+
 _next_values = fn iters:
   pipe iters:
     # TODO should we stop getting next item if any are done?
@@ -111,6 +118,7 @@ _next_values = fn iters:
       ...match done:
         true: []
         else: [value]
+
 
 
 zip = fn ...iterables:
@@ -136,10 +144,19 @@ length = fn iterable:
     else: -1
 
 
+
 is_empty = 0 == length ?
+
 
 
 # TODO: should this live in str?
 # TODO: should it be fn iterable, sep?
 join = fn sep: fn iterable:
   [...iterable].join sep
+
+
+
+compress = fn iterable, selectors:
+  pipe zip iterable, selectors:
+    filter [, selected]: selected
+    map [item]: item
