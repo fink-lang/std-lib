@@ -7,7 +7,7 @@
 # product
 # combinations
 # permutations
-
+# find_index
 
 
 repeat = unfold item:
@@ -107,6 +107,22 @@ slice = fn start, end=max_int: fn items:
       pipe items:
         drop start
         take end - start
+
+
+
+find_index = fn item_to_find: fn iterable:
+  # TODO [...iterable].findIndex item
+
+  [, idx] = pipe iterable:
+    map item, idx=0:
+      ([item, idx], idx + 1)
+
+    chain ?, [[item_to_find, -1]]
+
+    find [item]:
+      item == item_to_find
+
+  idx
 
 
 
