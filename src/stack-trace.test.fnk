@@ -1,8 +1,8 @@
-{describe, it, expect, to_equal} = import '@fink/jest'
+{describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
 
-{rx, replace_all, split} = import './regex'
+{rx, replace_all, split} = import './regex.fnk'
 
-{stack_trace} = import './stack-trace'
+{stack_trace} = import './stack-trace.fnk'
 
 
 describe 'stack_trace', fn:

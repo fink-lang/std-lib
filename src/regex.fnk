@@ -1,7 +1,7 @@
-{new} = import '@fink/js-interop/reflect'
-{RegExp} = import '@fink/js-interop/globals'
+{new} = import '@fink/js-interop/reflect.fnk'
+{RegExp} = import '@fink/js-interop/globals.fnk'
 
-{raw} = import './str'
+{raw} = import './str.fnk'
 
 
 regex = fn pattern, flags='':

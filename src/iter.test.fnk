@@ -1,11 +1,12 @@
-{describe, it, expect, to_equal} = import '@fink/jest'
+{describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
 
 {
   repeat, count, enumerate, zip, cycle, chain, reverse, sort, unique, flatten
-  length, is_empty, join, slice, insert_at, take, drop, compress
-} = import './iter'
+  length, is_empty, join, slice, insert_at, take, drop, compress,
+  find_index
+} = import './iter.fnk'
 
-{pad_start} = import './str'
+{pad_start} = import './str.fnk'
 
 
 
@@ -250,3 +251,13 @@ describe 'folding funcs', fn:
         'a,b,c,d,e,f'
 
 
+  it 'finds index of elem', fn:
+    expect
+      pipe [1,2,3]:
+        find_index 2
+      to_equal 1
+
+    expect
+      pipe [1,2,3]:
+        find_index 0
+      to_equal -1

@@ -1,7 +1,7 @@
-{describe, it, expect, to_equal} = import '@fink/jest'
-{Math} = import '@fink/js-interop/globals'
+{describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
+{Math} = import '@fink/js-interop/globals.fnk'
 
-{π, clamp} = import './math'
+{π, clamp} = import './math.fnk'
 
 
 describe 'math', fn:

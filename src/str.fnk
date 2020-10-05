@@ -1,6 +1,6 @@
-{new} = import '@fink/js-interop/reflect'
-{is_instance, get_type} = import '@fink/js-interop/reflect'
-{String, TextEncoder, TextDecoder} = import '@fink/js-interop/globals'
+{new} = import '@fink/js-interop/reflect.fnk'
+{is_instance, get_type} = import '@fink/js-interop/reflect.fnk'
+{String, TextEncoder, TextDecoder} = import '@fink/js-interop/globals.fnk'
 
 
 from_char_codes = String.fromCharCode

@@ -1,13 +1,15 @@
-{max_int} = import './num'
-{new} = import '@fink/js-interop/reflect'
-{Symbol, Set} = import '@fink/js-interop/globals'
+{new} = import '@fink/js-interop/reflect.fnk'
+{Symbol, Set} = import '@fink/js-interop/globals.fnk'
+
+{max_int} = import './num.fnk'
+
 
 # TODO add:
 # partition
 # product
 # combinations
 # permutations
-
+# find_index
 
 
 repeat = unfold item:
@@ -107,6 +109,22 @@ slice = fn start, end=max_int: fn items:
       pipe items:
         drop start
         take end - start
+
+
+
+find_index = fn item_to_find: fn iterable:
+  # TODO [...iterable].findIndex item
+
+  [, idx] = pipe iterable:
+    map item, idx=0:
+      ([item, idx], idx + 1)
+
+    chain ?, [[item_to_find, -1]]
+
+    find [item]:
+      item == item_to_find
+
+  idx
 
 
 

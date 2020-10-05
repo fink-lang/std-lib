@@ -1,8 +1,8 @@
-{describe, it, expect, to_equal} = import '@fink/jest'
+{describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
 
 {
   obj_keys, obj_values, obj_key_values, key_values_to_obj, obj_has
-} = import './obj'
+} = import './obj.fnk'
 
 
 describe 'objects', fn:

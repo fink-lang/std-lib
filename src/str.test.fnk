@@ -1,6 +1,6 @@
-{describe, it, expect, to_equal} = import '@fink/jest'
-{new} = import '@fink/js-interop/reflect'
-{Uint8Array, String} = import '@fink/js-interop/globals'
+{describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
+{new} = import '@fink/js-interop/reflect.fnk'
+{Uint8Array, String} = import '@fink/js-interop/globals.fnk'
 
 
 {
@@ -19,7 +19,7 @@
   encode, decode
 
   is_str
-} = import './str'
+} = import './str.fnk'
 
 
 describe 'string codes', fn:

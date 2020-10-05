@@ -1,3 +1,7 @@
+{new} = import '@fink/js-interop/reflect.fnk'
+{Promise, setTimeout} = import '@fink/js-interop/globals.fnk'
+
+
 
 parallel = fn tasks:
   pipe [...tasks]:
@@ -8,4 +12,10 @@ parallel = fn tasks:
 
 sequential = fold item, all=[]:
   [...all, await item]
+
+
+
+sleep = fn ms:
+  new Promise, fn resolve:
+    setTimeout resolve, ms
 

@@ -1,6 +1,6 @@
-{describe, it, expect, to_equal} = import '@fink/jest'
+{describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
 
-{json_to_obj, obj_to_json} = import './json'
+{json_to_obj, obj_to_json} = import './json.fnk'
 
 
 describe 'json', fn:

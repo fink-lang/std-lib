@@ -1,6 +1,6 @@
-{describe, it, expect, to_equal} = import '@fink/jest'
+{describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
 
-{matches, match_all, find_index, split, replace_all, replace, rx, regex} = import './regex'
+{matches, match_all, find_index, split, replace_all, replace, rx, regex} = import './regex.fnk'
 
 
 describe 'regex', fn:
