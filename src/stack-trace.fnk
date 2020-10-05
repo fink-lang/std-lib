@@ -1,4 +1,4 @@
-{Error} = import '@fink/js-interop/globals'
+{Error} = import '@fink/js-interop/globals.fnk'
 
 
 stack_trace = fn func=stack_trace:

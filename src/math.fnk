@@ -1,5 +1,4 @@
-
-{Math} = import '@fink/js-interop/globals'
+{Math} = import '@fink/js-interop/globals.fnk'
 
 
 Pi = Math.PI

@@ -1,6 +1,8 @@
-{max_int} = import './num'
-{new} = import '@fink/js-interop/reflect'
-{Symbol, Set} = import '@fink/js-interop/globals'
+{new} = import '@fink/js-interop/reflect.fnk'
+{Symbol, Set} = import '@fink/js-interop/globals.fnk'
+
+{max_int} = import './num.fnk'
+
 
 # TODO add:
 # partition

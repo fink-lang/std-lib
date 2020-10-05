@@ -1,5 +1,5 @@
-{parseFloat, parseInt, Number, isNaN, isFinite} = import '@fink/js-interop/globals'
-{is_instance, get_type} = import '@fink/js-interop/reflect'
+{parseFloat, parseInt, Number, isNaN, isFinite} = import '@fink/js-interop/globals.fnk'
+{is_instance, get_type} = import '@fink/js-interop/reflect.fnk'
 
 
 # TODO: should that live in str?

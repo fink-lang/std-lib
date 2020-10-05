@@ -1,5 +1,5 @@
-{new} = import '@fink/js-interop/reflect'
-{Promise, setTimeout} = import '@fink/js-interop/globals'
+{new} = import '@fink/js-interop/reflect.fnk'
+{Promise, setTimeout} = import '@fink/js-interop/globals.fnk'
 
 
 

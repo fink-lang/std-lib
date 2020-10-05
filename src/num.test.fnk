@@ -1,8 +1,8 @@
-{describe, it, expect, to_equal} = import '@fink/jest'
-{new} = import '@fink/js-interop/reflect'
-{Number} = import '@fink/js-interop/globals'
+{describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
+{new} = import '@fink/js-interop/reflect.fnk'
+{Number} = import '@fink/js-interop/globals.fnk'
 
-{parse_int, parse_float, base_n, is_num} = import './num'
+{parse_int, parse_float, base_n, is_num} = import './num.fnk'
 
 
 describe 'numbers', fn:

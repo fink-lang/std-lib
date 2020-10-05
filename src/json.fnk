@@ -1,4 +1,4 @@
-{JSON} = import '@fink/js-interop/globals'
+{JSON} = import '@fink/js-interop/globals.fnk'
 
 json_to_obj = JSON.parse
 

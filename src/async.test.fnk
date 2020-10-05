@@ -1,6 +1,6 @@
-{describe, it, expect, to_equal, mock_fn, was_called, was_not_called, run_all_timers} = import '@fink/jest'
+{describe, it, expect, to_equal, mock_fn, was_called, was_not_called, run_all_timers} = import '@fink/jest/test.fnk'
 
-{parallel, sequential, sleep} = import './async'
+{parallel, sequential, sleep} = import './async.fnk'
 
 
 run_task = fn name, handler:
