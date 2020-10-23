@@ -1,6 +1,8 @@
 {new} = import '@fink/js-interop/reflect.fnk'
 {Promise, setTimeout} = import '@fink/js-interop/globals.fnk'
 
+{is_fn} = import './fn.fnk'
+
 
 
 parallel = fn tasks:
@@ -19,3 +21,9 @@ sleep = fn ms:
   new Promise, fn resolve:
     setTimeout resolve, ms
 
+
+
+is_async = fn obj:
+  match obj:
+    {then: is_fn ?}: true
+    else: false
