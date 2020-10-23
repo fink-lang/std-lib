@@ -2,154 +2,38 @@
 {Symbol, Set} = import '@fink/js-interop/globals.fnk'
 
 {max_int} = import './num.fnk'
-
-
-# TODO add:
-# partition
-# product
-# combinations
-# permutations
-
-
-repeat = unfold item:
-  item
+{is_fn} = import './fn.fnk'
 
 
 
-count = fn start, step=1:
-  pipe start:
-    unfold value:
-      (value, value + step)
-
-
-
-enumerate = fn iterable, start=0, step=1:
+drop = fn num_items: fn iterable:
   pipe iterable:
-    map item, cntr=start:
-      ([cntr, item], cntr + step)
-
-
-
-chain = fn ...iterables:
-  pipe iterables:
-    map iterable:
-      ...iterable
-
-
-
-insert_at = fn idx, insert_items: fn items:
-  ignore = {}
-
-  pipe items:
-    chain ?, [ignore]
-
-    map item, curr=0:
-      all = match curr:
-        idx: chain insert_items, [item]
-        else: [item]
-
-      (...all, curr + 1)
-
-    filter item:
-      item != ignore
-
-
-
-cycle = fn iterable:
-  pipe [...iterable]:
-    unfold items:
-      (...items, items)
-
-
-
-flatten = map items: ...items
-
-
-
-reverse = fn iterable:
-  [...iterable].reverse _
-
-
-
-sort = fn compare: fn iterable:
-  [...iterable].sort compare
-
-
-
-unique = fn iterable: new Set, iterable
-
-
-
-drop = fn num_items: fn items:
-  pipe items:
     filter , idx=0:
       (idx >= num_items, idx + 1)
 
 
 
-take = fn num_items: fn items:
+take = fn num_items: fn iterable:
   match num_items:
     0:
       []
     else:
-      pipe items:
+      pipe iterable:
         until , ctr=1:
           (ctr >= num_items, ctr + 1)
 
 
 
-slice = fn start, end=max_int: fn items:
-  match start:
-    ? + end < 0:
+slice = fn start, end=max_int: fn iterable:
+  match true:
+    start + end < 0:
       # TODO: use a sliding buffer while iterating over items
-      [...items].slice start, end
+      [...iterable].slice start, end
 
     else:
-      pipe items:
+      pipe iterable:
         drop start
         take end - start
-
-
-
-find_index = fn item_to_find: fn iterable:
-  # TODO [...iterable].findIndex item
-
-  [[, idx]] = pipe iterable:
-    map item, idx=0:
-      ([item, idx], idx + 1)
-
-    chain ?, [[item_to_find, -1]]
-
-    filter [item]:
-      item == item_to_find
-
-  idx
-
-
-
-_next_values = fn iters:
-  pipe iters:
-    # TODO should we stop getting next item if any are done?
-    map iter:
-      {value, done} = iter.next _
-      ...match done:
-        true: []
-        else: [value]
-
-
-
-zip = fn ...iterables:
-  [...iters] = pipe iterables:
-    map iterable: iterable.(Symbol.iterator) _
-
-  {length: min_len} = iters
-
-  pipe:
-    unfold:
-      [..._next_values iters]
-
-    while {length}:
-      length == min_len
 
 
 
@@ -166,6 +50,17 @@ is_empty = 0 == length ?
 
 
 
+equals = fn it1, it2:
+  match length it1:
+    ? != length it2: false
+    else:
+      [eq=true] = pipe zip it1, it2:
+        map [item1, item2]: item1 == item2
+        filter found: not found
+      eq
+
+
+
 # TODO: should this live in str?
 # TODO: should it be fn iterable, sep?
 join = fn sep: fn iterable:
@@ -173,7 +68,215 @@ join = fn sep: fn iterable:
 
 
 
-compress = fn iterable, selectors:
+repeat = fn repititions: fn item:
+  pipe:
+    unfold: item
+    take repititions
+
+
+
+count = fn start, step=1:
+  pipe start:
+    unfold value:
+      (value, value + step)
+
+
+
+range = fn len:
+  pipe 0:
+    unfold cntr:
+      (cntr, cntr + 1)
+    take len
+
+
+
+enumerate = fn start=0, step=1: fn iterable:
+  pipe iterable:
+    map item, cntr=start:
+      ([cntr, item], cntr + step)
+
+
+
+chain = fn ...iterables: fn iterable:
+  pipe [iterable, ...iterables]:
+    map iterable:
+      ...iterable
+
+
+
+insert_at = fn idx, insert_items: fn iterable:
+  ignore = {}
+
+  pipe iterable:
+    chain [ignore]
+
+    map item, curr=0:
+      all = match curr:
+        idx: insert_items | chain [item]
+        else: [item]
+
+      (...all, curr + 1)
+
+    filter item:
+      item != ignore
+
+
+
+cycle = fn iterable:
+  pipe [...iterable]:
+    unfold items:
+      (...items, items)
+
+
+
+flatten = map iterable: ...iterable
+
+
+
+reverse = fn iterable:
+  [...iterable].reverse _
+
+
+
+sort = fn compare: fn iterable:
+  [...iterable].sort compare
+
+
+
+unique = fn iterable:
+  new Set, iterable
+
+
+
+find_index = fn item_to_find: fn iterable:
+  [[, idx]] = pipe iterable:
+    map item, idx=0:
+      ([item, idx], idx + 1)
+
+    chain [[item_to_find, -1]]
+
+    filter [item]:
+      match item_to_find:
+        is_fn ?: item_to_find item
+        item: true
+        else: false
+  idx
+
+
+
+_next_values = fn iters:
+  pipe iters:
+    map iter:
+      {value, done} = iter.next _
+      ...match done:
+        true: []
+        else: [value]
+
+
+
+zip = fn ...iterables:
+  [...iters] = pipe iterables:
+    map iterable:
+      iterable.(Symbol.iterator) _
+
+  {length: min_len} = iters
+
+  pipe:
+    unfold:
+      [..._next_values iters]
+
+    while {length}:
+      length == min_len
+
+
+
+compress = fn selectors: fn iterable:
   pipe zip iterable, selectors:
     filter [, selected]: selected
     map [item]: item
+
+
+
+product = fn ...iterables:
+  [iterable, ...rest] = iterables
+
+  match rest:
+    0 == length ?:
+      iterable | map item: [item]
+
+    else:
+      [...pools] = rest | map items: [...items]
+      iterable | map item:
+        ...pipe product ...pools:
+          map items:
+            [item, ...items]
+
+
+
+permutations = fn len: fn [...iterable]:
+  pool_len = length iterable
+  expected_len = match len:
+    {}: len
+    else: pool_len
+
+  idx_range = [...range pool_len]
+
+  pipe idx_range:
+    repeat expected_len
+    product ...?
+    map indices:
+      ...match unique indices:
+        expected_len == length ?:
+          [[... indices | map idx: iterable.(idx)]]
+        else:
+          []
+
+
+
+combinations = fn len: fn [...iterable]:
+  pool_len = length iterable
+  idx_range = [...range pool_len]
+
+  pipe idx_range:
+    permutations len
+    map indices:
+      ...match indices:
+        equals ?, indices | sort _:
+          [[... indices | map idx: iterable.(idx)]]
+        else:
+          []
+
+
+
+pairs = fn iterable:
+  pipe iterable:
+    map item, last=0:
+      ([last, item], item)
+    drop 1
+
+
+
+chunks = fn len, fill: fn iterable:
+  fill_items = fill | repeat len - 1
+
+  pipe iterable:
+    chain fill_items
+    map item, group=[]:
+      items = [...group, item]
+
+      [result, acc] = match items:
+        len == length ?:
+          [[items], []]
+        else:
+          [[], items]
+
+      (...result, acc)
+
+
+
+is_iter = fn obj:
+  match obj:
+    {(Symbol.iterator): is_fn ?}: true
+    {(Symbol.asyncIterator): is_fn ?}: true
+    else: false
+
