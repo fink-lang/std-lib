@@ -58,8 +58,16 @@ describe 'iter - transforming funcs', fn:
 
 
   it 'zips iterables into one', fn:
+    items = zip 'abc', count 1
     expect
-      [...zip 'abc', count 1]
+      [...items]
+      to_equal list:
+        ['a', 1]
+        ['b', 2]
+        ['c', 3]
+
+    expect
+      [...items]
       to_equal list:
         ['a', 1]
         ['b', 2]

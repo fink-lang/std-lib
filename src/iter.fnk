@@ -139,7 +139,8 @@ cycle = fn iterable:
 
 
 
-flatten = map iterable: ...iterable
+flatten = map iterable:
+  ...iterable
 
 
 
@@ -185,18 +186,26 @@ _next_values = fn iters:
 
 
 zip = fn ...iterables:
-  [...iters] = pipe iterables:
-    map iterable:
-      iterable.(Symbol.iterator) _
-
-  {length: min_len} = iters
+  min_len = length iterables
 
   pipe:
-    unfold:
-      [... _next_values iters]
+    unfold iters=false:
+      # JS iterators are stateful, thus we must recreate them
+      # each time a zip iterable is (re)iterated.
+      # TODO: it might be good to investigate using a custom iterator
+      # protocoll that provides a (item, next_fn, descr) tuple
+      # for each iteration step, allowing us to pass lazy ...rests around
+      # without making things stateful.
+      [...its] = match iters:
+        false: iterables | map iterable:
+          iterable.(Symbol.iterator) _
+        else:
+          iters
 
-    while {length}:
-      length == min_len
+      ([... _next_values its], its)
+
+    while item:
+      min_len == length item
 
 
 
