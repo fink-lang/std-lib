@@ -3,7 +3,8 @@
 {
   repeat, count, enumerate, zip, cycle, chain, reverse, sort, unique, flatten
   length, is_empty, join, slice, insert_at, take, drop, compress,
-  find_index, is_iter, product, permutations, combinations, equals, pairs, chunks
+  find_index, is_iter, product, permutations, combinations, equals, pairs, chunks,
+  range
 } = import './iter.fnk'
 
 {pad_start} = import './str.fnk'
@@ -25,6 +26,17 @@ describe 'iter - generating funcs', fn:
       [a, b, c]
       to_equal
         [0, 2, 4]
+
+  it 'creates ranges', fn:
+    expect
+      [...range 3]
+      to_equal
+        [0, 1, 2]
+
+    expect
+      [...range 1, 5]
+      to_equal
+        [1, 2, 3, 4]
 
 
 
@@ -382,6 +394,18 @@ describe 'folding funcs', fn:
     expect
       is_empty [1]
       to_equal false
+
+    expect
+      is_empty count 1
+      to_equal false
+
+    expect
+      is_empty unique '123456'
+      to_equal false
+
+    expect
+      is_empty {}
+      to_equal true
 
 
   it 'joins iterables with a separator', fn:

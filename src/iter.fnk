@@ -6,6 +6,24 @@
 
 
 
+length = fn iterable:
+  match iterable:
+    {length: {}}: iterable.length
+    {size: {}}: iterable.size
+    {(Symbol.iterator): {}}: [...iterable].length
+    else: -1
+
+
+
+is_empty = fn iterable:
+  match iterable:
+    {length: {}}: iterable.length == 0
+    {size: {}}: iterable.size == 0
+    {(Symbol.iterator): {}}: is_empty [...iterable | take 1]
+    else: true
+
+
+
 drop = fn num_items: fn iterable:
   pipe iterable:
     filter , idx=0:
@@ -37,16 +55,30 @@ slice = fn start, end=max_int: fn iterable:
 
 
 
-length = fn iterable:
-  match iterable:
-    {length: {}}: iterable.length
-    {size: {}}: iterable.size
-    {(Symbol.iterator): {}}: [...iterable].length
-    else: -1
+repeat = fn repititions: fn item:
+  pipe:
+    unfold: item
+    take repititions
 
 
 
-is_empty = 0 == length ?
+count = fn start, step=1:
+  pipe start:
+    unfold value:
+      (value, value + step)
+
+
+
+range = fn start, end, step=1:
+  [true_start, true_end] = match end:
+    {}: [start, end]
+    else: [0, start]
+
+  pipe true_start:
+    unfold cntr:
+      (cntr, cntr + step)
+    while cntr:
+      cntr < true_end
 
 
 
@@ -65,28 +97,6 @@ equals = fn it1, it2:
 # TODO: should it be fn iterable, sep?
 join = fn sep: fn iterable:
   [...iterable].join sep
-
-
-
-repeat = fn repititions: fn item:
-  pipe:
-    unfold: item
-    take repititions
-
-
-
-count = fn start, step=1:
-  pipe start:
-    unfold value:
-      (value, value + step)
-
-
-
-range = fn len:
-  pipe 0:
-    unfold cntr:
-      (cntr, cntr + 1)
-    take len
 
 
 
@@ -123,7 +133,7 @@ insert_at = fn idx, insert_items: fn iterable:
 
 
 cycle = fn iterable:
-  pipe [...iterable]:
+  pipe iterable:
     unfold items:
       (...items, items)
 
@@ -168,7 +178,7 @@ _next_values = fn iters:
   pipe iters:
     map iter:
       {value, done} = iter.next _
-      ...match done:
+      ... match done:
         true: []
         else: [value]
 
@@ -183,7 +193,7 @@ zip = fn ...iterables:
 
   pipe:
     unfold:
-      [..._next_values iters]
+      [... _next_values iters]
 
     while {length}:
       length == min_len
@@ -207,9 +217,14 @@ product = fn ...iterables:
     else:
       [...pools] = rest | map items: [...items]
       iterable | map item:
-        ...pipe product ...pools:
+        ... pipe product ...pools:
           map items:
             [item, ...items]
+
+
+
+select = fn indices: fn iterable:
+  indices | map idx: iterable.(idx)
 
 
 
@@ -219,15 +234,15 @@ permutations = fn len: fn [...iterable]:
     {}: len
     else: pool_len
 
-  idx_range = [...range pool_len]
+  idx_range = range pool_len
 
   pipe idx_range:
     repeat expected_len
     product ...?
     map indices:
-      ...match unique indices:
+      ... match unique indices:
         expected_len == length ?:
-          [[... indices | map idx: iterable.(idx)]]
+          [[... iterable | select indices]]
         else:
           []
 
@@ -235,14 +250,14 @@ permutations = fn len: fn [...iterable]:
 
 combinations = fn len: fn [...iterable]:
   pool_len = length iterable
-  idx_range = [...range pool_len]
+  idx_range = range pool_len
 
   pipe idx_range:
     permutations len
     map indices:
-      ...match indices:
+      ... match indices:
         equals ?, indices | sort _:
-          [[... indices | map idx: iterable.(idx)]]
+          [[... iterable | select indices]]
         else:
           []
 
