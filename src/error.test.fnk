@@ -1,0 +1,21 @@
+{describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
+
+{error, is_error} = import './error.fnk'
+
+
+
+describe error, fn:
+  it 'is error with props', fn:
+    err = error 'oops', {foo: 'bar'}
+
+    expect
+      err.message
+      to_equal 'oops'
+
+    expect
+      err.foo
+      to_equal 'bar'
+
+    expect
+      is_error err
+      to_equal true
