@@ -3,7 +3,8 @@
 {
   repeat, count, enumerate, zip, cycle, chain, reverse, sort, unique, flatten
   length, is_empty, join, slice, insert_at, take, drop, compress,
-  find_index
+  find_index, is_iter, product, permutations, combinations, equals, pairs, chunks,
+  range
 } = import './iter.fnk'
 
 {pad_start} = import './str.fnk'
@@ -12,7 +13,7 @@
 
 describe 'iter - generating funcs', fn:
   it 'repeats item forever', fn:
-    [a, b, c] = repeat '.'
+    [a, b, c] = '.' | repeat 3
 
     expect
       [a, b, c]
@@ -26,18 +27,30 @@ describe 'iter - generating funcs', fn:
       to_equal
         [0, 2, 4]
 
+  it 'creates ranges', fn:
+    expect
+      [...range 3]
+      to_equal
+        [0, 1, 2]
+
+    expect
+      [...range 1, 5]
+      to_equal
+        [1, 2, 3, 4]
+
+
 
 describe 'iter - transforming funcs', fn:
   it 'enumerates', fn:
     expect
-      [...enumerate 'abc']
+      [... 'abc' | enumerate _]
       to_equal list:
         [0, 'a']
         [1, 'b']
         [2, 'c']
 
     expect
-      [...enumerate 'abc', 0, -1]
+      [... 'abc' | enumerate 0, -1]
       to_equal list:
         [0, 'a']
         [-1, 'b']
@@ -45,8 +58,16 @@ describe 'iter - transforming funcs', fn:
 
 
   it 'zips iterables into one', fn:
+    items = zip 'abc', count 1
     expect
-      [...zip 'abc', count 1]
+      [...items]
+      to_equal list:
+        ['a', 1]
+        ['b', 2]
+        ['c', 3]
+
+    expect
+      [...items]
       to_equal list:
         ['a', 1]
         ['b', 2]
@@ -64,7 +85,7 @@ describe 'iter - transforming funcs', fn:
 
   it 'chains multiple iterables', fn:
     expect
-      [...chain 'abc', [1, 2, 3]]
+      [...'abc' | chain [1, 2, 3]]
       to_equal
         ['a', 'b', 'c', 1, 2, 3]
 
@@ -103,7 +124,10 @@ describe 'iter - transforming funcs', fn:
 
   it 'flattens nested iterable', fn:
     expect
-      [...flatten enumerate 'abc']
+      list:
+        ...pipe 'abc':
+          enumerate _
+          flatten
       to_equal
         [0, 'a', 1, 'b', 2, 'c']
 
@@ -133,10 +157,148 @@ describe 'iter - transforming funcs', fn:
   it 'compresses items', fn:
     expect
       pipe [1, 2, 3, 4]:
-        compress ?, [true, false, false, true]
+        compress [true, false, false, true]
         [...?]
       to_equal
         [1, 4]
+
+
+  it 'creates a product from iterables', fn:
+    expect
+      [...product '123']
+      to_equal
+        list:
+          ['1'], ['2'], ['3']
+
+
+    expect
+      [...product '123', 'abc']
+      to_equal
+        list:
+          ['1', 'a'], ['1', 'b'], ['1', 'c']
+          ['2', 'a'], ['2', 'b'], ['2', 'c']
+          ['3', 'a'], ['3', 'b'], ['3', 'c']
+
+    expect
+      pipe product '123', 'abc', '.•˚':
+        map items: items | join ''
+        [...?]
+      to_equal
+        list:
+          '1a.', '1a•', '1a˚'
+          '1b.', '1b•', '1b˚'
+          '1c.', '1c•', '1c˚'
+          '2a.', '2a•', '2a˚'
+          '2b.', '2b•', '2b˚'
+          '2c.', '2c•', '2c˚'
+          '3a.', '3a•', '3a˚'
+          '3b.', '3b•', '3b˚'
+          '3c.', '3c•', '3c˚'
+
+
+  it 'creates permutations', fn:
+    expect
+      pipe 'abcd':
+        permutations _
+        map items: items | join ''
+        [...?]
+      to_equal
+        list:
+          'abcd', 'abdc', 'acbd', 'acdb', 'adbc', 'adcb'
+          'bacd', 'badc', 'bcad', 'bcda', 'bdac', 'bdca'
+          'cabd', 'cadb', 'cbad', 'cbda', 'cdab', 'cdba'
+          'dabc', 'dacb', 'dbac', 'dbca', 'dcab', 'dcba'
+
+    expect
+      pipe 'abcd':
+        permutations 2
+        map items: items | join ''
+        [...?]
+      to_equal
+        ['ab', 'ac', 'ad', 'ba', 'bc', 'bd', 'ca', 'cb', 'cd', 'da', 'db', 'dc']
+
+
+  it 'creates combinations', fn:
+    expect
+      pipe 'abcd':
+        combinations 1
+        map items: items | join ''
+        [...?]
+      to_equal
+        ['a', 'b', 'c', 'd']
+
+    expect
+      pipe 'abcd':
+        combinations 2
+        map items: items | join ''
+        [...?]
+      to_equal
+        ['ab', 'ac', 'ad', 'bc', 'bd', 'cd']
+
+    expect
+      pipe 'abcd':
+        combinations 3
+        map items: items | join ''
+        [...?]
+      to_equal
+        ['abc', 'abd', 'acd', 'bcd']
+
+    expect
+      pipe 'abcd':
+        combinations 4
+        map items: items | join ''
+        [...?]
+      to_equal
+        ['abcd']
+
+
+  it 'creates pairs', fn:
+    expect
+      pipe pairs 'ab':
+        map items: items | join ''
+        [...?]
+      to_equal
+        ['ab']
+
+    expect
+      pipe pairs 'abc':
+        map items: items | join ''
+        [...?]
+      to_equal
+        ['ab', 'bc']
+
+    expect
+      pipe pairs 'abcd':
+        map items: items | join ''
+        [...?]
+      to_equal
+        ['ab', 'bc', 'cd']
+
+
+  it 'creates chunks', fn:
+    expect
+      pipe '0123456789':
+        chunks 3
+        map items: items | join ''
+        [...?]
+      to_equal
+        ['012', '345', '678', '9']
+
+    expect
+      pipe '0123':
+        chunks 2
+        map items: items | join ''
+        [...?]
+      to_equal
+        ['01', '23']
+
+    expect
+      pipe '0123':
+        chunks 3, 'x'
+        map items: items | join ''
+        [...?]
+      to_equal
+        ['012', '3xx']
 
 
 
@@ -216,7 +378,7 @@ describe 'folding funcs', fn:
       to_equal 2
 
     expect
-      length chain 'abc', 'def'
+      length 'abc' | chain 'def'
       to_equal 6
 
     expect
@@ -241,10 +403,23 @@ describe 'folding funcs', fn:
       is_empty [1]
       to_equal false
 
+    expect
+      is_empty count 1
+      to_equal false
+
+    expect
+      is_empty unique '123456'
+      to_equal false
+
+    expect
+      is_empty {}
+      to_equal true
+
 
   it 'joins iterables with a separator', fn:
     expect
-      pipe chain 'abc', 'def':
+      pipe 'abc':
+        chain 'def'
         join ','
 
       to_equal
@@ -253,11 +428,56 @@ describe 'folding funcs', fn:
 
   it 'finds index of elem', fn:
     expect
-      pipe [1,2,3]:
+      pipe [1, 2, 3]:
         find_index 2
       to_equal 1
 
     expect
-      pipe [1,2,3]:
+      pipe [1, 2, 3]:
         find_index 0
       to_equal -1
+
+    expect
+      pipe [1, 2, 3]:
+        find_index fn item: item == 2
+      to_equal 1
+
+
+
+describe 'reflective', fn:
+  it 'is_iter', fn:
+    expect
+      is_iter []
+      to_equal true
+
+    expect
+      is_iter ''
+      to_equal true
+
+    expect
+      is_iter (unfold: 1) _
+      to_equal true
+
+    expect
+      is_iter (unfold: await 1) _
+      to_equal true
+
+    expect
+      is_iter 123
+      to_equal false
+
+
+
+describe 'comparison', fn:
+  it 'checks if iterables are equal', fn:
+    expect
+      equals 'abc', 'abc'
+      to_equal true
+
+    expect
+      equals 'abc', 'def'
+      to_equal false
+
+    expect
+      equals 'abc', 'ab'
+      to_equal false

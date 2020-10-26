@@ -1,0 +1,13 @@
+{Error} = import '@fink/js-interop/globals.fnk'
+{new, set_props, is_instance} = import '@fink/js-interop/reflect.fnk'
+
+
+
+error = fn msg, props:
+  err = new Error, msg
+  set_props err, props
+
+
+
+is_error = fn err:
+  is_instance err, Error
