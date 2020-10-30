@@ -27,7 +27,7 @@ is_empty = fn iterable:
 drop = fn num_items: fn iterable:
   pipe iterable:
     filter , idx=0:
-      (idx >= num_items, idx + 1)
+      [idx >= num_items, idx + 1]
 
 
 
@@ -38,7 +38,7 @@ take = fn num_items: fn iterable:
     else:
       pipe iterable:
         until , ctr=1:
-          (ctr >= num_items, ctr + 1)
+          [ctr >= num_items, ctr + 1]
 
 
 
@@ -63,9 +63,9 @@ repeat = fn repititions: fn item:
 
 
 count = fn start, step=1:
-  pipe start:
+  pipe start - step:
     unfold value:
-      (value, value + step)
+      value + step
 
 
 
@@ -74,9 +74,9 @@ range = fn start, end, step=1:
     {}: [start, end]
     else: [0, start]
 
-  pipe true_start:
+  pipe true_start - step:
     unfold cntr:
-      (cntr, cntr + step)
+      cntr + step
     while cntr:
       cntr < true_end
 
@@ -103,7 +103,7 @@ join = fn sep: fn iterable:
 enumerate = fn start=0, step=1: fn iterable:
   pipe iterable:
     map item, cntr=start:
-      ([cntr, item], cntr + step)
+      [[cntr, item], cntr + step]
 
 
 
@@ -125,7 +125,7 @@ insert_at = fn idx, insert_items: fn iterable:
         idx: insert_items | chain [item]
         else: [item]
 
-      (...all, curr + 1)
+      ...[all, curr + 1]
 
     filter item:
       item != ignore
@@ -135,7 +135,7 @@ insert_at = fn idx, insert_items: fn iterable:
 cycle = fn iterable:
   pipe iterable:
     unfold items:
-      (...items, items)
+      ...items
 
 
 
@@ -162,7 +162,7 @@ unique = fn iterable:
 find_index = fn item_to_find: fn iterable:
   [[, idx]] = pipe iterable:
     map item, idx=0:
-      ([item, idx], idx + 1)
+      [[item, idx], idx + 1]
 
     chain [[item_to_find, -1]]
 
@@ -189,7 +189,7 @@ zip = fn ...iterables:
   min_len = length iterables
 
   pipe:
-    unfold iters=false:
+    unfold _, iters=false:
       # JS iterators are stateful, thus we must recreate them
       # each time a zip iterable is (re)iterated.
       # TODO: it might be good to investigate using a custom iterator
@@ -202,7 +202,7 @@ zip = fn ...iterables:
         else:
           iters
 
-      ([... _next_values its], its)
+      [[... _next_values its], its]
 
     while item:
       min_len == length item
@@ -222,7 +222,6 @@ product = fn ...iterables:
   match rest:
     0 == length ?:
       iterable | map item: [item]
-
     else:
       [...pools] = rest | map items: [...items]
       iterable | map item:
@@ -275,7 +274,7 @@ combinations = fn len: fn [...iterable]:
 pairs = fn iterable:
   pipe iterable:
     map item, last=0:
-      ([last, item], item)
+      [[last, item], item]
     drop 1
 
 
@@ -288,13 +287,11 @@ chunks = fn len, fill: fn iterable:
     map item, group=[]:
       items = [...group, item]
 
-      [result, acc] = match items:
+      ... match items:
         len == length ?:
           [[items], []]
         else:
           [[], items]
-
-      (...result, acc)
 
 
 
