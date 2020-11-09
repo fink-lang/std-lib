@@ -1,25 +1,34 @@
-{describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
+{describe, it, expect, to_equal, skip} = import '@fink/jest/test.fnk'
 
 {
   repeat, count, enumerate, zip, cycle, chain, reverse, sort, unique, flatten
-  length, is_empty, join, slice, insert_at, take, drop, compress,
-  find_index, is_iter, product, permutations, combinations, equals, pairs, chunks,
-  range
+  length, is_empty, join, slice, insert_at, take, drop, compress
+  find_index, is_iter, product, permutations, combinations, equals, pairs
+  chunks, range, drop_last, take_last
 } = import './iter.fnk'
 
 {pad_start} = import './str.fnk'
 
 
 
-describe 'iter - generating funcs', fn:
-  it 'repeats item forever', fn:
-    [a, b, c] = '.' | repeat 3
+expect_iter = fn actual, expectation:
+  expect
+    [... actual]
+    expectation
 
-    expect
-      [a, b, c]
+
+
+
+describe repeat, fn:
+  it 'repeats item n times', fn:
+    expect_iter
+      '.' | repeat 3
       to_equal
         ['.', '.', '.']
 
+
+
+describe count, fn:
   it 'counts', fn:
     [a, b, c] = count 0, 2
     expect
@@ -27,53 +36,77 @@ describe 'iter - generating funcs', fn:
       to_equal
         [0, 2, 4]
 
-  it 'creates ranges', fn:
+  it 'counts with steps', fn:
+    [a, b, c] = count 0, 2
     expect
-      [...range 3]
+      [a, b, c]
+      to_equal
+        [0, 2, 4]
+
+
+
+describe range, fn:
+  it 'create range up to end', fn:
+    expect_iter
+      range 3
       to_equal
         [0, 1, 2]
 
-    expect
-      [...range 1, 5]
+  it 'create range from start to up to end', fn:
+    expect_iter
+      range 1, 5
       to_equal
         [1, 2, 3, 4]
 
+  it 'create range from start to up to end with given increments', fn:
+    expect_iter
+      range 1, 9, 2
+      to_equal
+        [1, 3, 5, 7]
 
 
-describe 'iter - transforming funcs', fn:
+
+describe enumerate, fn:
   it 'enumerates', fn:
-    expect
-      [... 'abc' | enumerate _]
+    expect_iter
+      'abc' | enumerate _
       to_equal list:
         [0, 'a']
         [1, 'b']
         [2, 'c']
 
-    expect
-      [... 'abc' | enumerate 0, -1]
+
+  it 'enumerates with start and step', fn:
+    expect_iter
+      'abc' | enumerate 0, -1
       to_equal list:
         [0, 'a']
         [-1, 'b']
         [-2, 'c']
 
 
+
+describe zip, fn:
   it 'zips iterables into one', fn:
     items = zip 'abc', count 1
-    expect
-      [...items]
+
+    expect_iter
+      items
       to_equal list:
         ['a', 1]
         ['b', 2]
         ['c', 3]
 
-    expect
-      [...items]
+    expect_iter
+      items
       to_equal list:
         ['a', 1]
         ['b', 2]
         ['c', 3]
 
 
+
+describe cycle, fn:
   it 'cycles', fn:
     [a, b, c, d, e] = cycle [1, 2, 3]
 
@@ -83,12 +116,17 @@ describe 'iter - transforming funcs', fn:
         [1, 2, 3, 1, 2]
 
 
+
+describe chain, fn:
   it 'chains multiple iterables', fn:
-    expect
-      [...'abc' | chain [1, 2, 3]]
+    expect_iter
+      'abc' | chain [1, 2, 3]
       to_equal
         ['a', 'b', 'c', 1, 2, 3]
 
+
+
+describe insert_at, fn:
 
   it 'inserts items into iterable', fn:
     expect
@@ -113,34 +151,44 @@ describe 'iter - transforming funcs', fn:
         '1abc'
 
 
+
+describe unique, fn:
   it 'creates unique set of items', fn:
-    expect
-      pipe [1, 2, 2, 3]:
-        unique
-        [...?]
+    expect_iter
+      [1, 2, 3] | unique
+      to_equal
+        [1, 2, 3]
+
+    expect_iter
+      [1, 2, 2, 3] | unique
       to_equal
         [1, 2, 3]
 
 
+
+describe flatten, fn:
   it 'flattens nested iterable', fn:
-    expect
-      list:
-        ...pipe 'abc':
-          enumerate _
-          flatten
+    expect_iter
+      pipe 'abc':
+        enumerate _
+        flatten
       to_equal
         [0, 'a', 1, 'b', 2, 'c']
 
 
+
+describe reverse, fn:
   it 'reverses iterable', fn:
-    expect
-      reverse [1, 2, 3]
+    expect_iter
+      [1, 2, 3] | reverse
       to_equal
         [3, 2, 1]
 
 
+
+describe sort, fn:
   it 'sorts iterable', fn:
-    expect
+    expect_iter
       pipe ['1', '222', '2', '11']:
         sort fn a, b:
           padded_a = pad_start a, 10, ' '
@@ -154,35 +202,36 @@ describe 'iter - transforming funcs', fn:
         ['1', '2', '11', '222']
 
 
+
+describe compress, fn:
   it 'compresses items', fn:
-    expect
-      pipe [1, 2, 3, 4]:
-        compress [true, false, false, true]
-        [...?]
+    expect_iter
+      [1, 2, 3, 4] | compress [true, false, false, true]
       to_equal
         [1, 4]
 
 
-  it 'creates a product from iterables', fn:
-    expect
-      [...product '123']
+
+describe product, fn:
+  it 'creates a product from single iterable', fn:
+    expect_iter
+      product '123'
       to_equal
-        list:
-          ['1'], ['2'], ['3']
+        [['1'], ['2'], ['3']]
 
 
-    expect
-      [...product '123', 'abc']
+  it 'creates a product from multiple iterables', fn:
+    expect_iter
+      product '123', 'abc'
       to_equal
         list:
           ['1', 'a'], ['1', 'b'], ['1', 'c']
           ['2', 'a'], ['2', 'b'], ['2', 'c']
           ['3', 'a'], ['3', 'b'], ['3', 'c']
 
-    expect
+    expect_iter
       pipe product '123', 'abc', '.•˚':
         map items: items | join ''
-        [...?]
       to_equal
         list:
           '1a.', '1a•', '1a˚'
@@ -196,12 +245,13 @@ describe 'iter - transforming funcs', fn:
           '3c.', '3c•', '3c˚'
 
 
+
+describe permutations, fn:
   it 'creates permutations', fn:
-    expect
+    expect_iter
       pipe 'abcd':
         permutations _
         map items: items | join ''
-        [...?]
       to_equal
         list:
           'abcd', 'abdc', 'acbd', 'acdb', 'adbc', 'adcb'
@@ -209,101 +259,96 @@ describe 'iter - transforming funcs', fn:
           'cabd', 'cadb', 'cbad', 'cbda', 'cdab', 'cdba'
           'dabc', 'dacb', 'dbac', 'dbca', 'dcab', 'dcba'
 
-    expect
+    expect_iter
       pipe 'abcd':
         permutations 2
         map items: items | join ''
-        [...?]
       to_equal
         ['ab', 'ac', 'ad', 'ba', 'bc', 'bd', 'ca', 'cb', 'cd', 'da', 'db', 'dc']
 
 
+
+describe combinations, fn:
   it 'creates combinations', fn:
-    expect
+    expect_iter
       pipe 'abcd':
         combinations 1
         map items: items | join ''
-        [...?]
       to_equal
         ['a', 'b', 'c', 'd']
 
-    expect
+    expect_iter
       pipe 'abcd':
         combinations 2
         map items: items | join ''
-        [...?]
       to_equal
         ['ab', 'ac', 'ad', 'bc', 'bd', 'cd']
 
-    expect
+    expect_iter
       pipe 'abcd':
         combinations 3
         map items: items | join ''
-        [...?]
       to_equal
         ['abc', 'abd', 'acd', 'bcd']
 
-    expect
+    expect_iter
       pipe 'abcd':
         combinations 4
         map items: items | join ''
-        [...?]
       to_equal
         ['abcd']
 
 
+
+describe pairs, fn:
   it 'creates pairs', fn:
-    expect
+    expect_iter
       pipe pairs 'ab':
         map items: items | join ''
-        [...?]
       to_equal
         ['ab']
 
-    expect
+    expect_iter
       pipe pairs 'abc':
         map items: items | join ''
-        [...?]
       to_equal
         ['ab', 'bc']
 
-    expect
+    expect_iter
       pipe pairs 'abcd':
         map items: items | join ''
-        [...?]
       to_equal
         ['ab', 'bc', 'cd']
 
 
+
+describe chunks, fn:
   it 'creates chunks', fn:
-    expect
+    expect_iter
       pipe '0123456789':
         chunks 3
         map items: items | join ''
-        [...?]
       to_equal
         ['012', '345', '678', '9']
 
-    expect
+    expect_iter
       pipe '0123':
         chunks 2
         map items: items | join ''
-        [...?]
       to_equal
         ['01', '23']
 
-    expect
+    expect_iter
       pipe '0123':
         chunks 3, 'x'
         map items: items | join ''
-        [...?]
       to_equal
         ['012', '3xx']
 
 
 
-describe 'slice', fn:
-  it 'advances ignores n elements', fn:
+describe drop, fn:
+  it 'ignores n elements', fn:
     expect
       pipe '1234567890':
         drop 5
@@ -311,6 +356,24 @@ describe 'slice', fn:
       to_equal '67890'
 
 
+
+describe drop_last, fn:
+  it 'ignores last n elements', fn:
+    expect
+      pipe '1234567890':
+        drop_last 5
+        join ''
+      to_equal '12345'
+
+    expect
+      pipe '12345':
+        drop_last 5
+        join ''
+      to_equal ''
+
+
+
+describe take, fn:
   it 'filters n elements', fn:
     expect
       pipe '1234567890':
@@ -318,52 +381,90 @@ describe 'slice', fn:
         join ''
       to_equal '12345'
 
-
-  it 'takes 0 length slice', fn:
     expect
+      pipe '1234567890':
+        take 0
+        join ''
+      to_equal ''
+
+
+
+describe take_last, fn:
+  it 'ignores last n elements', fn:
+    expect
+      pipe '1234567890':
+        take_last 5
+        join ''
+      to_equal '67890'
+
+    expect
+      pipe '123':
+        take_last 5
+        join ''
+      to_equal '123'
+
+
+
+
+describe slice, fn:
+  it 'takes 0 length slice', fn:
+    expect_iter
       pipe count 0:
         slice 1, 1
-        [...?]
       to_equal
         []
 
 
   it 'takes regular slice', fn:
-    expect
+    expect_iter
       pipe count 0:
         slice 0, 3
-        [...?]
       to_equal
         [0, 1, 2]
 
 
   it 'takes slice from start to end of iterable', fn:
-    expect
+    expect_iter
       pipe '0123456789':
         slice 5
-        [...?]
       to_equal
         [...'56789']
 
 
   it 'takes end-offset slice', fn:
-    expect
+    expect_iter
       pipe '0123456789':
-        slice 0, -5
-        [...?]
+        slice 3, -2
       to_equal
-        [...'01234']
+        [...'34567']
 
-    expect
+    expect_iter
+      pipe '0123456789':
+        slice 7, -5
+      to_equal
+        [...'']
+
+    expect_iter
+      pipe '0123456789':
+        slice -5, 8
+      to_equal
+        [...'567']
+
+    expect_iter
       pipe '0123456789':
         slice -5, -1
-        [...?]
       to_equal
         [...'5678']
 
+    expect_iter
+      pipe '0123456789':
+        slice -5, -6
+      to_equal
+        [...'']
 
 
-describe 'folding funcs', fn:
+
+describe length, fn:
   it 'gets length', fn:
     expect
       length '1234'
@@ -374,7 +475,7 @@ describe 'folding funcs', fn:
       to_equal 0
 
     expect
-      length pipe [1, 2, 2]: unique
+      length  [1, 2, 2] | unique
       to_equal 2
 
     expect
@@ -383,9 +484,11 @@ describe 'folding funcs', fn:
 
     expect
       length {}
-      to_equal (-1)
+      to_equal 0
 
 
+
+describe is_empty, fn:
   it 'checks if iterable is empty', fn:
     expect
       is_empty ''
@@ -415,7 +518,13 @@ describe 'folding funcs', fn:
       is_empty {}
       to_equal true
 
+    expect
+      is_empty range 0
+      to_equal true
 
+
+
+describe join, fn:
   it 'joins iterables with a separator', fn:
     expect
       pipe 'abc':
@@ -426,6 +535,8 @@ describe 'folding funcs', fn:
         'a,b,c,d,e,f'
 
 
+
+describe find_index, fn:
   it 'finds index of elem', fn:
     expect
       pipe [1, 2, 3]:
@@ -444,7 +555,7 @@ describe 'folding funcs', fn:
 
 
 
-describe 'reflective', fn:
+skip.describe is_iter, fn:
   it 'is_iter', fn:
     expect
       is_iter []
@@ -459,16 +570,12 @@ describe 'reflective', fn:
       to_equal true
 
     expect
-      is_iter (unfold: await 1) _
-      to_equal true
-
-    expect
       is_iter 123
       to_equal false
 
 
 
-describe 'comparison', fn:
+describe equals, fn:
   it 'checks if iterables are equal', fn:
     expect
       equals 'abc', 'abc'
@@ -481,3 +588,28 @@ describe 'comparison', fn:
     expect
       equals 'abc', 'ab'
       to_equal false
+
+
+
+describe 'performance', fn:
+
+  it 'performs', fn:
+    t1 = fn:
+      pipe 0:
+        unfold start=0: start + 1
+        until x: x == 1000
+        map item: [item, {reps: [...item | repeat 5], r: [...range 0, 10, 2]}]
+        zip ?, count 1000
+        map [item, cntr]: {cntr, item}
+        filter {cntr}: cntr % 2 == 0
+        fold _, c=0: c+1
+
+    t2 = fn:
+      pipe range 100:
+        fold:
+          t1 _
+
+    expect
+      t2 _
+      to_equal 500
+

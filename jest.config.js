@@ -4,7 +4,11 @@ export default {
   setupFiles: [],
   moduleFileExtensions: ['js', 'fnk'],
   transform: {
-    '^.+\\.fnk$': ['@fink/jest/transform.js']
+    '^.+\\.fnk$': ['@fink/jest/transform.js'],
+    '^.+\\.js$': [
+      'babel-jest',
+      {presets: [['@babel/preset-env', {targets: {node: 'current'}}]]}
+    ]
   },
   transformIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/build/'],
 
