@@ -7,13 +7,13 @@
 
 parallel = fn tasks:
   pipe [...tasks]:
-    fold item, all=[]:
-      [...all, await item]
+    fold await item, all=[]:
+      [...all, item]
 
 
 
-sequential = fold item, all=[]:
-  [...all, await item]
+sequential = fold await item, all=[]:
+  [...all, item]
 
 
 

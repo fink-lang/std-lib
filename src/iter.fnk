@@ -1,52 +1,91 @@
-{new} = import '@fink/js-interop/reflect.fnk'
-{Symbol, Set} = import '@fink/js-interop/globals.fnk'
+# TODO: should all js-interop imports be virtual imports from e.g. @fink/runtime/*
+# and have the compiler translate it to the appropriate runtime module
+{_iter_, _next_} = import '@fink/js-interop/runtime.js'
+{_len_, _is_empty_, _join_, _reverse_, _sort_, _zip_} = import '@fink/js-interop/runtime.js'
 
 {max_int} = import './num.fnk'
 {is_fn} = import './fn.fnk'
 
 
 
-length = fn iterable:
-  match iterable:
-    {length: {}}: iterable.length
-    {size: {}}: iterable.size
-    {(Symbol.iterator): {}}: [...iterable].length
-    else: -1
+iter = _iter_
+next = _next_
+
+is_empty = _is_empty_
+length = _len_
+
+zip = _zip_
+reverse = _reverse_
+join = _join_
+sort = _sort_
 
 
 
-is_empty = fn iterable:
-  match iterable:
-    {length: {}}: iterable.length == 0
-    {size: {}}: iterable.size == 0
-    {(Symbol.iterator): {}}: is_empty [...iterable | take 1]
-    else: true
+drop = fn num_items:
+  filter , idx=0:
+    [idx >= num_items, idx + 1]
 
 
 
-drop = fn num_items: fn iterable:
+drop_last = fn num_items: fn iterable:
   pipe iterable:
-    filter , idx=0:
-      [idx >= num_items, idx + 1]
+    map item, buffer=[]:
+      ...match buffer:
+        num_items > length ?:
+          [[], [...buffer, item]]
+        else:
+          [out, ...rest] = buffer
+          [[out], [...rest, item]]
 
 
 
 take = fn num_items: fn iterable:
   match num_items:
-    0:
-      []
+    0: []
     else:
-      pipe iterable:
-        until , ctr=1:
-          [ctr >= num_items, ctr + 1]
+      iterable | until , ctr=1:
+        [ctr >= num_items, ctr + 1]
+
+
+
+take_last = fn num_items: fn iterable:
+  last = {}
+
+  pipe iterable:
+    chain [last]
+    map item, buffer=[]:
+      ...match item:
+        last:
+          [buffer, []]
+        else:
+          match buffer:
+            num_items > length ?:
+              [[], [...buffer, item]]
+            else:
+              [, ...rest] = buffer
+              [[], [...rest, item]]
 
 
 
 slice = fn start, end=max_int: fn iterable:
   match true:
-    start + end < 0:
-      # TODO: use a sliding buffer while iterating over items
-      [...iterable].slice start, end
+    end - start == 0:
+      []
+
+    start < 0 and end < 0:
+      pipe iterable:
+        take_last -start
+        drop_last -end
+
+    start < 0:
+      pipe iterable:
+        take_last -start
+        take end + start
+
+    end < 0:
+      pipe iterable:
+        drop start
+        drop_last -end
 
     else:
       pipe iterable:
@@ -93,28 +132,33 @@ equals = fn it1, it2:
 
 
 
-# TODO: should this live in str?
-# TODO: should it be fn iterable, sep?
-join = fn sep: fn iterable:
-  [...iterable].join sep
+enumerate = fn start=0, step=1:
+  map item, cntr=start:
+    [[cntr, item], cntr + step]
 
 
 
-enumerate = fn start=0, step=1: fn iterable:
-  pipe iterable:
-    map item, cntr=start:
-      [[cntr, item], cntr + step]
+cycle = unfold items:
+  ...items
+
+
+
+flatten = map items:
+  ...items
 
 
 
 chain = fn ...iterables: fn iterable:
-  pipe [iterable, ...iterables]:
-    map iterable:
-      ...iterable
+  flatten [iterable, ...iterables]
 
 
 
-insert_at = fn idx, insert_items: fn iterable:
+unique = filter item, known=[]:
+  [not item in known, [...known, item]]
+
+
+
+insert_at = fn idx, items: fn iterable:
   ignore = {}
 
   pipe iterable:
@@ -122,40 +166,12 @@ insert_at = fn idx, insert_items: fn iterable:
 
     map item, curr=0:
       all = match curr:
-        idx: insert_items | chain [item]
+        idx: items | chain [item]
         else: [item]
-
       ...[all, curr + 1]
 
     filter item:
       item != ignore
-
-
-
-cycle = fn iterable:
-  pipe iterable:
-    unfold items:
-      ...items
-
-
-
-flatten = map iterable:
-  ...iterable
-
-
-
-reverse = fn iterable:
-  [...iterable].reverse _
-
-
-
-sort = fn compare: fn iterable:
-  [...iterable].sort compare
-
-
-
-unique = fn iterable:
-  new Set, iterable
 
 
 
@@ -175,37 +191,16 @@ find_index = fn item_to_find: fn iterable:
 
 
 
-_next_values = fn iters:
-  pipe iters:
-    map iter:
-      {value, done} = iter.next _
-      ... match done:
-        true: []
-        else: [value]
+item_at = fn idx: fn iterable:
+  [item] = iterable | filter , curr_idx=0:
+    [idx == curr_idx, curr_idx + 1]
+  item
 
 
 
-zip = fn ...iterables:
-  min_len = length iterables
-
-  pipe:
-    unfold _, iters=false:
-      # JS iterators are stateful, thus we must recreate them
-      # each time a zip iterable is (re)iterated.
-      # TODO: it might be good to investigate using a custom iterator
-      # protocoll that provides a (item, next_fn, descr) tuple
-      # for each iteration step, allowing us to pass lazy ...rests around
-      # without making things stateful.
-      [...its] = match iters:
-        false: iterables | map iterable:
-          iterable.(Symbol.iterator) _
-        else:
-          iters
-
-      [[... _next_values its], its]
-
-    while item:
-      min_len == length item
+select = fn indices: fn iterable:
+  indices | map idx:
+    iterable | item_at idx
 
 
 
@@ -223,16 +218,12 @@ product = fn ...iterables:
     0 == length ?:
       iterable | map item: [item]
     else:
-      [...pools] = rest | map items: [...items]
-      iterable | map item:
-        ... pipe product ...pools:
-          map items:
-            [item, ...items]
-
-
-
-select = fn indices: fn iterable:
-  indices | map idx: iterable.(idx)
+      # [...pools] = rest | map items: [...items]
+      pipe iterable:
+        map item:
+          ... pipe product ...rest: #...pools:
+            map items:
+              [item, ...items]
 
 
 
@@ -292,12 +283,4 @@ chunks = fn len, fill: fn iterable:
           [[items], []]
         else:
           [[], items]
-
-
-
-is_iter = fn obj:
-  match obj:
-    {(Symbol.iterator): is_fn ?}: true
-    {(Symbol.asyncIterator): is_fn ?}: true
-    else: false
 

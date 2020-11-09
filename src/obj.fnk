@@ -5,6 +5,7 @@ obj_keys = Object.keys
 
 obj_values = Object.values
 
+# TODO: remove in favour of [...kvs] = iter {}
 obj_key_values = Object.entries
 
 key_values_to_obj = Object.fromEntries
