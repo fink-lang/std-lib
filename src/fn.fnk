@@ -1,4 +1,5 @@
 {get_type} = import '@fink/js-interop/reflect.fnk'
 
 
-is_fn = fn obj: 'function' == get_type obj
+is_fn = fn obj:
+  'function' == get_type obj
