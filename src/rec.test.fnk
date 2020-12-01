@@ -6,7 +6,7 @@
 } = import './rec.fnk'
 
 
-describe 'objects', fn:
+describe 'records', fn:
   it 'gets keys', fn:
     expect
       rec_keys {foo: 1, 'bar spam': 2}
@@ -21,7 +21,7 @@ describe 'objects', fn:
         [1, 2]
 
 
-  it 'gets key,values', fn:
+  it 'gets key, values', fn:
     expect
       rec_key_values {foo: 1, 'bar spam': 2}
       to_equal list:
@@ -29,7 +29,7 @@ describe 'objects', fn:
         ['bar spam', 2]
 
 
-  it 'creates obj from key,values', fn:
+  it 'creates record from key, values', fn:
     expect
       key_values_to_rec list:
         ['foo', 1]

@@ -23,7 +23,7 @@ sleep = fn ms:
 
 
 
-is_async = fn obj:
-  match obj:
+is_async = fn value:
+  match value:
     {then: is_fn ?}: true
     else: false
