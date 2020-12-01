@@ -1,0 +1,17 @@
+{Object} = import '@fink/js-interop/globals.fnk'
+
+
+rec_keys = Object.keys
+
+rec_values = Object.values
+
+# TODO: remove in favour of [...kvs] = iter {}
+rec_key_values = Object.entries
+
+key_values_to_rec = Object.fromEntries
+
+
+is_rec = fn value:
+  match value:
+    {constructor: Object}: true
+    else: false

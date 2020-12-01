@@ -21,6 +21,16 @@ sort = _sort_
 
 
 
+flatten = map items:
+  ...items
+
+
+
+chain = fn ...iterables: fn iterable:
+  flatten [iterable, ...iterables]
+
+
+
 drop = fn num_items:
   filter , idx=0:
     [idx >= num_items, idx + 1]
@@ -140,16 +150,6 @@ enumerate = fn start=0, step=1:
 
 cycle = unfold items:
   ...items
-
-
-
-flatten = map items:
-  ...items
-
-
-
-chain = fn ...iterables: fn iterable:
-  flatten [iterable, ...iterables]
 
 
 

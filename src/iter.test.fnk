@@ -602,7 +602,7 @@ describe 'performance', fn:
         zip ?, count 1000
         map [item, cntr]: {cntr, item}
         filter {cntr}: cntr % 2 == 0
-        fold _, c=0: c+1
+        fold _, c=0: c + 1
 
     t2 = fn:
       pipe range 100:

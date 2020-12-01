@@ -1,4 +1,4 @@
-{new} = import '@fink/js-interop/reflect.fnk'
+{new, is_instance} = import '@fink/js-interop/reflect.fnk'
 {RegExp} = import '@fink/js-interop/globals.fnk'
 
 {raw} = import './str.fnk'
@@ -6,6 +6,16 @@
 
 regex = fn pattern, flags='':
   new RegExp, pattern, 'u${flags}'
+
+
+
+rx_to_str = fn value:
+  value.source
+
+
+
+is_rx = fn value:
+  is_instance value, RegExp
 
 
 ---
@@ -31,7 +41,13 @@ rx = fn strings, ...exprs:
         replace_all ?, ingorables, ''
         replace_all ?, esc, '$1$3'
 
-  regex raw {raw: parts}, ...exprs
+
+  regex raw {raw: parts}, ... exprs | map expr:
+    match expr:
+      is_rx ?:
+        expr.source
+      else:
+        expr
 
 
 match_all = fn str, rx:
@@ -56,3 +72,6 @@ replace_all = fn str, rx, replacement:
 
 
 matches = fn str, rx: rx.test str
+
+
+

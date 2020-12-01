@@ -1,9 +1,9 @@
 {describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
 
-{matches, match_all, find_index, split, replace_all, replace, rx, regex} = import './regex.fnk'
+{matches, match_all, find_index, split, replace_all, replace, rx, is_rx, rx_to_str} = import './regex.fnk'
 
 
-describe 'regex', fn:
+describe rx, fn:
   it 'matches single', fn:
     expect
       matches 'foobar', rx'.+oo.+'
@@ -52,7 +52,7 @@ describe 'regex', fn:
 
 
 
-describe 'string templates', fn:
+describe 'rx expressions', fn:
   it 'creates a regex', fn:
     expect
       rx'\(.+?\)(foo{${1},${4}})'
@@ -71,16 +71,35 @@ describe 'string templates', fn:
 
   it 'handles escaping', fn:
     expect
-      rx'
+      rx_to_str rx'
         \'\"`
         foo \# bar
         \${2}
         \\*
       '
-      to_equal regex '\'"`foo # bar\\\${2}\\\\*'
+      to_equal '\'"`foo # bar\\\${2}\\\\*'
 
 
   it 'handles spaces', fn:
     expect
-      rx'[ ]{3}'
-      to_equal regex '[ ]{3}'
+      rx_to_str rx'[ ]{3}'
+      to_equal '[ ]{3}'
+
+
+  it 'handles nesting', fn:
+    expect
+      rx_to_str rx'^.+?${ rx'foo.+' }$'
+      to_equal '^.+?foo.+$'
+
+
+
+describe is_rx, fn:
+  it 'asserts if value is regex', fn:
+    expect
+      is_rx rx'foo'
+      to_equal true
+
+    expect
+      is_rx '/foo/'
+      to_equal false
+
