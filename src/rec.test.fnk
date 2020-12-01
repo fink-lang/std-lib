@@ -1,39 +1,29 @@
 {describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
+{null, undefined} = import '@fink/js-interop/nullish.fnk'
 
 {
-  obj_keys, obj_values, obj_key_values, key_values_to_obj, obj_has
-} = import './obj.fnk'
+  rec_keys, rec_values, rec_key_values, key_values_to_rec, is_rec
+} = import './rec.fnk'
 
 
 describe 'objects', fn:
-  it 'has key', fn:
-    expect
-      obj_has {foo: 1, 'bar spam': 2}, 'foo'
-      to_equal
-        true
-
-    expect
-      obj_has {}, 'toString'
-      to_equal
-        false
-
   it 'gets keys', fn:
     expect
-      obj_keys {foo: 1, 'bar spam': 2}
+      rec_keys {foo: 1, 'bar spam': 2}
       to_equal
         ['foo', 'bar spam']
 
 
   it 'gets values', fn:
     expect
-      obj_values {foo: 1, 'bar spam': 2}
+      rec_values {foo: 1, 'bar spam': 2}
       to_equal
         [1, 2]
 
 
   it 'gets key,values', fn:
     expect
-      obj_key_values {foo: 1, 'bar spam': 2}
+      rec_key_values {foo: 1, 'bar spam': 2}
       to_equal list:
         ['foo', 1]
         ['bar spam', 2]
@@ -41,8 +31,48 @@ describe 'objects', fn:
 
   it 'creates obj from key,values', fn:
     expect
-      key_values_to_obj list:
+      key_values_to_rec list:
         ['foo', 1]
         ['bar spam', 2]
       to_equal
         {foo: 1, 'bar spam': 2}
+
+
+  it 'asserts value is_rec', fn:
+    expect
+      is_rec {}
+      to_equal true
+
+    expect
+      is_rec 0
+      to_equal false
+
+    expect
+      is_rec 1.2345
+      to_equal false
+
+    expect
+      is_rec false
+      to_equal false
+
+    expect
+      is_rec true
+      to_equal false
+
+    expect
+      is_rec 'foo'
+      to_equal false
+
+    expect
+      is_rec []
+      to_equal false
+
+    expect
+      is_rec null
+      to_equal false
+
+    expect
+      is_rec undefined
+      to_equal false
+
+

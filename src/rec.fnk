@@ -1,16 +1,17 @@
 {Object} = import '@fink/js-interop/globals.fnk'
 
 
-obj_keys = Object.keys
+rec_keys = Object.keys
 
-obj_values = Object.values
+rec_values = Object.values
 
 # TODO: remove in favour of [...kvs] = iter {}
-obj_key_values = Object.entries
+rec_key_values = Object.entries
 
-key_values_to_obj = Object.fromEntries
+key_values_to_rec = Object.fromEntries
 
-# TODO: should use in-operator instead
-# TODO: use Reflect.has
-obj_has = fn obj, key:
-  Object.prototype.hasOwnProperty.call obj, key
+
+is_rec = fn value:
+  match value:
+    {constructor: Object}: true
+    else: false
