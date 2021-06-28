@@ -1,5 +1,5 @@
 {new} = import '@fink/js-interop/reflect.fnk'
-{Promise, setTimeout} = import '@fink/js-interop/globals.fnk'
+{Promise, globals} = import '@fink/js-interop/globals.fnk'
 
 {is_fn} = import './fn.fnk'
 
@@ -19,7 +19,8 @@ sequential = fold await item, all=[]:
 
 sleep = fn ms:
   new Promise, fn resolve:
-    setTimeout resolve, ms
+
+    globals.setTimeout resolve, ms
 
 
 

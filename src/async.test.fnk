@@ -1,12 +1,4 @@
-{describe, it, expect, mock, require_actual, to_equal, mock_fn, was_called, was_not_called, run_all_timers} = import '@fink/jest/test.fnk'
-
-
-mock '@fink/js-interop/globals.js', fn:
-  orig = require_actual '@fink/js-interop/globals.js'
-  rec:
-    ...orig
-    setTimeout: fn ...args: orig.globals.setTimeout ...args
-
+{describe, it, expect, to_equal, mock_fn, was_called, was_not_called, run_all_timers} = import '@fink/jest/test.fnk'
 
 {parallel, sequential, sleep, is_async} = import './async.fnk'
 
