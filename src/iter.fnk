@@ -1,11 +1,10 @@
 # TODO: should all js-interop imports be virtual imports from e.g. @fink/runtime/*
 # and have the compiler translate it to the appropriate runtime module
-{_iter_, _next_} = import '@fink/js-interop/runtime.js'
-{_len_, _is_empty_, _join_, _reverse_, _sort_, _zip_} = import '@fink/js-interop/runtime.js'
+{_iterable_, _iter_, _next_, _is_done_, _is_empty_, _empty_iter_} = import '@fink/js-interop/runtime.js'
+{_len_, _join_, _reverse_, _sort_, _zip_} = import '@fink/js-interop/runtime.js'
 
 {max_int} = import './num.fnk'
 {is_fn} = import './fn.fnk'
-
 
 
 iter = _iter_
@@ -21,8 +20,208 @@ sort = _sort_
 
 
 
-flatten = map items:
-  ...items
+fold = fn initial, fold_fn=initial:
+  foldr = fn iterable, prev, ctx, fold_fn:
+    [item, rest, next_ctx=ctx] = _next_ iterable, ctx
+    match rest:
+      _is_done_ ?: prev
+      else:
+        result = fold_fn item, prev, , next_ctx
+        foldr rest, result, next_ctx, fold_fn
+
+  fn items:
+    it = _iter_ items
+    [init, ff] = match initial:
+      fold_fn: [, fold_fn]
+      else: [initial, fold_fn]
+    foldr it, init, _, ff
+
+
+fold_ac = fn initial, fold_fn=initial:
+  foldr = fn iterable, prev, acc, ctx, fold_fn:
+    [item, rest, f_ctx=ctx] = _next_ iterable, ctx
+    match rest:
+      _is_done_ ?: [prev, f_ctx]
+      else:
+        [result, next_acc, next_ctx] = fold_fn item, prev, acc, f_ctx
+        foldr rest, result, next_acc, next_ctx, fold_fn
+
+  fn items:
+    it = _iter_ items
+    [init, ff] = match initial:
+      fold_fn: [, fold_fn]
+      else: [initial, fold_fn]
+    foldr it, init, _, _, ff
+
+
+
+unfold = fn next_item_fn:
+  next_fn = fn prev, ctx:
+    item = next_item_fn prev, _, ctx
+    next_iter = _iterable_ next_fn, item
+    [item, next_iter, ctx]
+
+  fn start: _iterable_ next_fn, start
+
+
+unfold_ac = fn next_item_fn:
+  next_fn = fn [prev, acc], ctx:
+    [item, next_acc, next_ctx=ctx] = next_item_fn prev, acc, ctx
+    next_iter = _iterable_ next_fn, [item, next_acc]
+    [item, next_iter, next_ctx]
+
+  fn start: _iterable_ next_fn, [start]
+
+
+
+filter = fn filter_fn:
+  next_fn = fn iterable, ctx:
+    [item, rest, next_ctx=ctx] = _next_ iterable, ctx
+    match rest:
+      _is_done_ ?: [item, rest, next_ctx]
+      else:
+        keep = filter_fn item, , next_ctx
+        match keep:
+          true:
+            next_iter = _iterable_ next_fn, rest
+            [item, next_iter, next_ctx]
+          else:
+            next_fn rest, next_ctx
+
+  fn items: _iterable_ next_fn, _iter_ items
+
+
+filter_ac = fn filter_fn:
+  next_fn = fn [iterable, acc], ctx:
+    [item, rest, m_ctx=ctx] = _next_ iterable, ctx
+    match rest:
+      _is_done_ ?: [item, rest, m_ctx]
+      else:
+        [keep, next_acc, next_ctx] = filter_fn item, acc, m_ctx
+        match keep:
+          true:
+            next_iter = _iterable_ next_fn, [rest, next_acc]
+            [item, next_iter, next_ctx]
+          else:
+            next_fn [rest, next_acc], next_ctx
+
+  fn items: _iterable_ next_fn, [_iter_ items]
+
+
+
+while = fn while_fn:
+  next_fn = fn iterable, ctx:
+    [item, rest, next_ctx=ctx] = _next_ iterable, ctx
+    match rest:
+      _is_done_ ?: [item, rest, next_ctx]
+      else:
+        continue = while_fn item, , next_ctx
+        match continue:
+          true:
+            next_iter = _iterable_ next_fn, rest
+            [item, next_iter, next_ctx]
+          else:
+            [ , _empty_iter_, next_ctx]
+
+  fn items: _iterable_ next_fn, _iter_ items
+
+
+while_ac = fn while_fn:
+  next_fn = fn [iterable, acc], ctx:
+    [item, rest, m_ctx=ctx] = _next_ iterable, ctx
+    match rest:
+      _is_done_ ?: [item, rest, m_ctx]
+      else:
+        [continue, next_acc, next_ctx] = while_fn item, acc, m_ctx
+        match continue:
+          true:
+            next_iter = _iterable_ next_fn, [rest, next_acc]
+            [item, next_iter, next_ctx]
+          else:
+            [ , _empty_iter_, next_ctx]
+
+  fn items: _iterable_ next_fn, [_iter_ items]
+
+
+
+until = fn until_fn:
+  next_fn = fn iterable , ctx:
+    [item, rest, next_ctx=ctx] = _next_ iterable, ctx
+    match rest:
+      _is_done_ ?: [item, rest, next_ctx]
+      else:
+        stop = until_fn item, , next_ctx
+        match stop:
+          true:
+            [ , _empty_iter_, next_ctx]
+          else:
+            next_iter = _iterable_ next_fn, rest
+            [item, next_iter, next_ctx]
+
+  fn items: _iterable_ next_fn, _iter_ items
+
+
+until_ac = fn until_fn:
+  next_fn = fn [iterable, acc], ctx:
+    [item, rest, m_ctx=ctx] = _next_ iterable, ctx
+    match rest:
+      _is_done_ ?: [item, rest, m_ctx]
+      else:
+        [stop, next_acc, next_ctx] = until_fn item, acc, m_ctx
+        match stop:
+          true:
+            [ , _empty_iter_, next_ctx]
+          else:
+            next_iter = _iterable_ next_fn, [rest, next_acc]
+            [item, next_iter, next_ctx]
+
+  fn items: _iterable_ next_fn, [_iter_ items]
+
+
+
+map = fn map_fn:
+  next_fn = fn iterable, ctx:
+    [item, rest, next_ctx=ctx] = _next_ iterable, ctx
+    match rest:
+      _is_done_ ?: [item, rest, next_ctx]
+      else:
+        mapped_item = map_fn item, , next_ctx
+        next_iter = _iterable_ next_fn, rest
+        [mapped_item, next_iter, next_ctx]
+
+  fn items: _iterable_ next_fn, _iter_ items
+
+
+map_ac = fn map_fn:
+  next_fn = fn [iterable, acc], ctx:
+    [item, rest, m_ctx=ctx] = _next_ iterable, ctx
+    match rest:
+      _is_done_ ?: [item, rest, m_ctx]
+      else:
+        [mitem, next_acc, next_ctx] = map_fn item, acc, m_ctx
+        next_iter = _iterable_ next_fn, [rest, next_acc]
+        [mitem, next_iter, next_ctx]
+
+  fn items: _iterable_ next_fn, [_iter_ items]
+
+
+
+flatten = fn iterables:
+  next_fn = fn [it_, rest_iterables], ctx:
+    it = _iter_ it_
+    match rest_iterables.done:
+      true:
+        [ , _empty_iter_, ctx]
+      else:
+        [item, rest, next_ctx=ctx] = _next_ it, ctx
+        match rest.done:
+          true:
+            next_fn (_next_ rest_iterables), next_ctx
+          else:
+            next_iter = _iterable_ next_fn, [rest, rest_iterables]
+            [item, next_iter, next_ctx]
+
+  _iterable_ next_fn, _next_ _iter_ iterables
 
 
 
@@ -32,20 +231,21 @@ chain = fn ...iterables: fn iterable:
 
 
 drop = fn num_items:
-  filter , idx=0:
+  filter_ac fn , idx=0:
     [idx >= num_items, idx + 1]
 
 
 
 drop_last = fn num_items: fn iterable:
   pipe iterable:
-    map item, buffer=[]:
-      ...match buffer:
+    map_ac fn item, buffer=[]:
+      match buffer:
         num_items > length ?:
           [[], [...buffer, item]]
         else:
           [out, ...rest] = buffer
           [[out], [...rest, item]]
+    flatten
 
 
 
@@ -53,8 +253,8 @@ take = fn num_items: fn iterable:
   match num_items:
     0: []
     else:
-      iterable | until , ctr=1:
-        [ctr >= num_items, ctr + 1]
+      iterable | while_ac fn , ctr=1:
+        [ctr <= num_items, ctr + 1]
 
 
 
@@ -63,8 +263,8 @@ take_last = fn num_items: fn iterable:
 
   pipe iterable:
     chain [last]
-    map item, buffer=[]:
-      ...match item:
+    map_ac fn item, buffer=[]:
+      match item:
         last:
           [buffer, []]
         else:
@@ -74,6 +274,7 @@ take_last = fn num_items: fn iterable:
             else:
               [, ...rest] = buffer
               [[], [...rest, item]]
+    flatten
 
 
 
@@ -106,15 +307,15 @@ slice = fn start, end=max_int: fn iterable:
 
 repeat = fn repititions: fn item:
   pipe:
-    unfold: item
+    unfold fn: item
     take repititions
 
 
 
 count = fn start, step=1:
   pipe start - step:
-    unfold value:
-      value + step
+    unfold fn value:
+     value + step
 
 
 
@@ -124,36 +325,39 @@ range = fn start, end, step=1:
     else: [0, start]
 
   pipe true_start - step:
-    unfold cntr:
+    unfold fn cntr:
       cntr + step
-    while cntr:
+    while fn cntr:
       cntr < true_end
 
 
 
 equals = fn it1, it2:
   match length it1:
-    ? != length it2: false
+    ? != length it2:
+      false
     else:
       [eq=true] = pipe zip it1, it2:
-        map [item1, item2]: item1 == item2
-        filter found: not found
+        map fn [item1, item2]: item1 == item2
+        filter fn found: not found
       eq
 
 
 
 enumerate = fn start=0, step=1:
-  map item, cntr=start:
+  map_ac fn item, cntr=start:
     [[cntr, item], cntr + step]
 
 
 
-cycle = unfold items:
-  ...items
+cycle = fn items:
+  pipe items:
+    unfold fn items: items
+    flatten
 
 
 
-unique = filter item, known=[]:
+unique = filter_ac fn item, known=[]:
   [not item in known, [...known, item]]
 
 
@@ -164,25 +368,27 @@ insert_at = fn idx, items: fn iterable:
   pipe iterable:
     chain [ignore]
 
-    map item, curr=0:
+    map_ac fn item, curr=0:
       all = match curr:
         idx: items | chain [item]
         else: [item]
-      ...[all, curr + 1]
+      [all, curr + 1]
 
-    filter item:
+    flatten
+
+    filter fn item:
       item != ignore
 
 
 
 find_index = fn item_to_find: fn iterable:
   [[, idx]] = pipe iterable:
-    map item, idx=0:
+    map_ac fn item, idx=0:
       [[item, idx], idx + 1]
 
     chain [[item_to_find, -1]]
 
-    filter [item]:
+    filter fn [item]:
       match item_to_find:
         is_fn ?: item_to_find item
         item: true
@@ -192,22 +398,22 @@ find_index = fn item_to_find: fn iterable:
 
 
 item_at = fn idx: fn iterable:
-  [item] = iterable | filter , curr_idx=0:
+  [item] = iterable | filter_ac fn , curr_idx=0:
     [idx == curr_idx, curr_idx + 1]
   item
 
 
 
 select = fn indices: fn iterable:
-  indices | map idx:
+  indices | map fn idx:
     iterable | item_at idx
 
 
 
 compress = fn selectors: fn iterable:
   pipe zip iterable, selectors:
-    filter [, selected]: selected
-    map [item]: item
+    filter fn [, selected]: selected
+    map fn [item]: item
 
 
 
@@ -216,14 +422,17 @@ product = fn ...iterables:
 
   match rest:
     0 == length ?:
-      iterable | map item: [item]
+      iterable | map fn item: [item]
     else:
       # [...pools] = rest | map items: [...items]
       pipe iterable:
-        map item:
-          ... pipe product ...rest: #...pools:
-            map items:
+        map fn item:
+          todo = pipe rest:
+            product ...? # ...pools:
+            map fn items:
               [item, ...items]
+          todo
+        flatten
 
 
 
@@ -238,12 +447,13 @@ permutations = fn len: fn [...iterable]:
   pipe idx_range:
     repeat expected_len
     product ...?
-    map indices:
-      ... match unique indices:
+    map fn indices:
+      match unique indices:
         expected_len == length ?:
           [[... iterable | select indices]]
         else:
           []
+    flatten
 
 
 
@@ -253,18 +463,19 @@ combinations = fn len: fn [...iterable]:
 
   pipe idx_range:
     permutations len
-    map indices:
-      ... match indices:
+    map fn indices:
+      match indices:
         equals ?, indices | sort _:
           [[... iterable | select indices]]
         else:
           []
+    flatten
 
 
 
 pairs = fn iterable:
   pipe iterable:
-    map item, last=0:
+    map_ac fn item, last=0:
       [[last, item], item]
     drop 1
 
@@ -275,12 +486,15 @@ chunks = fn len, fill: fn iterable:
 
   pipe iterable:
     chain fill_items
-    map item, group=[]:
+    map_ac fn item, group=[]:
       items = [...group, item]
 
-      ... match items:
+      match items:
         len == length ?:
           [[items], []]
         else:
           [[], items]
+
+    flatten
+
 
