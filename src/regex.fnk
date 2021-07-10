@@ -2,6 +2,7 @@
 {RegExp} = import '@fink/js-interop/globals.fnk'
 
 {raw} = import './str.fnk'
+{map} = import './iter.fnk'
 
 
 regex = fn pattern, flags='':
@@ -62,13 +63,13 @@ rx = fn strings, ...exprs:
   esc = regex raw'(^|[^\\])((\\{2})*)\\(?=[#${'\'"`'}])'
 
   [...parts] = pipe strings.raw:
-    map part:
+    map fn part:
       pipe part:
         replace_all ?, ingorables, ''
         replace_all ?, esc, '$1$3'
 
 
-  regex raw {raw: parts}, ... exprs | map expr:
+  regex raw {raw: parts}, ... exprs | map fn expr:
     match expr:
       is_rx ?:
         expr.source
