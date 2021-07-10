@@ -1,5 +1,6 @@
 {describe, it, expect, to_equal, mock_fn, was_called, was_not_called, run_all_timers} = import '@fink/jest/test.fnk'
 
+{map} = import './iter.fnk'
 {parallel, sequential, sleep, is_async} = import './async.fnk'
 
 
@@ -13,7 +14,7 @@ describe 'async', fn:
     handler = mock_fn _
 
     await pipe 'abc':
-      map item: run_task item, handler
+      map fn item: run_task item, handler
       parallel
 
     expect
@@ -32,7 +33,7 @@ describe 'async', fn:
     handler = mock_fn _
 
     await pipe 'abc':
-      map item: run_task item, handler
+      map fn item: run_task item, handler
       sequential
 
     expect

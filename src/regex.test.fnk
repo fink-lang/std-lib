@@ -1,5 +1,6 @@
 {describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
 
+{map} = import './iter.fnk'
 {matches, match_all, find_index, split, replace_all, replace, rx, is_rx, rx_to_str} = import './regex.fnk'
 
 
@@ -18,7 +19,7 @@ describe rx, fn:
 
   it 'matches multiple', fn:
     [...matches] = pipe match_all 'foobar, spam, ham', rx'(?<=\s).+?am':
-      map [m]: m
+      map fn [m]: m
 
     expect
       matches

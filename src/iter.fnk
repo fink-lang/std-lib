@@ -144,41 +144,6 @@ while_ac = fn while_fn:
 
 
 
-until = fn until_fn:
-  next_fn = fn iterable , ctx:
-    [item, rest, next_ctx=ctx] = _next_ iterable, ctx
-    match rest:
-      _is_done_ ?: [item, rest, next_ctx]
-      else:
-        stop = until_fn item, , next_ctx
-        match stop:
-          true:
-            [ , _empty_iter_, next_ctx]
-          else:
-            next_iter = _iterable_ next_fn, rest
-            [item, next_iter, next_ctx]
-
-  fn items: _iterable_ next_fn, _iter_ items
-
-
-until_ac = fn until_fn:
-  next_fn = fn [iterable, acc], ctx:
-    [item, rest, m_ctx=ctx] = _next_ iterable, ctx
-    match rest:
-      _is_done_ ?: [item, rest, m_ctx]
-      else:
-        [stop, next_acc, next_ctx] = until_fn item, acc, m_ctx
-        match stop:
-          true:
-            [ , _empty_iter_, next_ctx]
-          else:
-            next_iter = _iterable_ next_fn, [rest, next_acc]
-            [item, next_iter, next_ctx]
-
-  fn items: _iterable_ next_fn, [_iter_ items]
-
-
-
 map = fn map_fn:
   next_fn = fn iterable, ctx:
     [item, rest, next_ctx=ctx] = _next_ iterable, ctx
@@ -206,27 +171,34 @@ map_ac = fn map_fn:
 
 
 
-flatten = fn iterables:
-  next_fn = fn [it_, rest_iterables], ctx:
-    it = _iter_ it_
-    match rest_iterables.done:
-      true:
+chain = fn ...iterables: fn iterable:
+  done = {}
+  next_fn = fn [curr=done, ...rest_iters], ctx:
+    match curr:
+      done:
         [ , _empty_iter_, ctx]
       else:
-        [item, rest, next_ctx=ctx] = _next_ it, ctx
-        match rest.done:
-          true:
-            next_fn (_next_ rest_iterables), next_ctx
+        curr_iter = _iter_ curr
+        [item, rest_curr, next_ctx=ctx] = _next_ curr_iter, ctx
+        match rest_curr:
+          _is_done_ ?:
+            next_fn rest_iters, next_ctx
           else:
-            next_iter = _iterable_ next_fn, [rest, rest_iterables]
+            next_iter = _iterable_ next_fn, [rest_curr, ...rest_iters]
             [item, next_iter, next_ctx]
 
-  _iterable_ next_fn, _next_ _iter_ iterables
+  _iterable_ next_fn, [iterable, ...iterables]
 
 
 
-chain = fn ...iterables: fn iterable:
-  flatten [iterable, ...iterables]
+flatten = fn iterables:
+  next_fn = fn iters, ctx:
+    [seq, rest_iters, seq_ctx=ctx] = _next_ iters, ctx
+    pipe seq:
+      chain flatten rest_iters
+      _next_ ?, seq_ctx
+
+  _iterable_ next_fn, _iter_ iterables
 
 
 
@@ -315,7 +287,7 @@ repeat = fn repititions: fn item:
 count = fn start, step=1:
   pipe start - step:
     unfold fn value:
-     value + step
+      value + step
 
 
 
@@ -424,7 +396,7 @@ product = fn ...iterables:
     0 == length ?:
       iterable | map fn item: [item]
     else:
-      # [...pools] = rest | map items: [...items]
+      # [...pools] = rest | map fn items: [...items]
       pipe iterable:
         map fn item:
           todo = pipe rest:

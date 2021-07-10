@@ -1,7 +1,7 @@
 {describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
 
-{fold: fold_, unfold, map, filter, while, until} = import './iter.fnk'
-{fold_ac, unfold_ac, map_ac, filter_ac, while_ac, until_ac} = import './iter.fnk'
+{fold: fold_, unfold, map, filter, while} = import './iter.fnk'
+{fold_ac, unfold_ac, map_ac, filter_ac, while_ac} = import './iter.fnk'
 
 {
   repeat, count, enumerate, zip, cycle, chain, reverse, sort, unique, flatten
@@ -61,7 +61,7 @@ describe 'unfold', fn:
       pipe 0:
         unfold fn prev:
           prev + 1
-        while item:
+        while fn item:
           item < 5
       to_equal
         [1, 2, 3, 4]
@@ -167,39 +167,6 @@ describe while_ac, fn:
     expect_iter
       [1, 2, 3, 4, 3, 2, 1] | while_ac fn item, acc=1:
         [item >= acc, acc + 1]
-      to_equal
-        [1, 2, 3, 4]
-
-
-
-describe 'until', fn:
-  it 'handles empty', fn:
-    expect_iter
-      [] | until fn:
-        true
-      to_equal
-        []
-
-  it 'keeps until', fn:
-    expect_iter
-      [1, 2, 3, 4] | until fn item:
-        item > 2
-      to_equal
-        [1, 2]
-
-
-describe until_ac, fn:
-  it 'keeps items with accu', fn:
-    expect_iter
-      '' | until_ac fn:
-        [false]
-      to_equal
-        []
-
-  it 'keeps items with accu', fn:
-    expect_iter
-      [1, 2, 3, 4, 3, 2, 1] | until_ac fn item, acc=1:
-        [item < acc, acc + 1]
       to_equal
         [1, 2, 3, 4]
 
@@ -362,6 +329,18 @@ describe flatten, fn:
         [0, 'a', 1, 'b', 2, 'c']
 
 
+  it 'flattens with ctx', fn:
+    expect
+      pipe 'abc':
+        map_ac fn item, , ctx=0:
+          [[ctx, item],, ctx + 1]
+        flatten
+        fold_ fn it, out=[], , ctx:
+          [...out, '${it}${ctx}']
+      to_equal
+        ["01", "a1", "12", "b2", "23", "c3"]
+
+
 
 describe reverse, fn:
   it 'reverses iterable', fn:
@@ -417,7 +396,7 @@ describe product, fn:
 
     expect_iter
       pipe product '123', 'abc', '.•˚':
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         list:
           '1a.', '1a•', '1a˚'
@@ -437,7 +416,7 @@ describe permutations, fn:
     expect_iter
       pipe 'abcd':
         permutations _
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         list:
           'abcd', 'abdc', 'acbd', 'acdb', 'adbc', 'adcb'
@@ -448,7 +427,7 @@ describe permutations, fn:
     expect_iter
       pipe 'abcd':
         permutations 2
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         ['ab', 'ac', 'ad', 'ba', 'bc', 'bd', 'ca', 'cb', 'cd', 'da', 'db', 'dc']
 
@@ -459,28 +438,28 @@ describe combinations, fn:
     expect_iter
       pipe 'abcd':
         combinations 1
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         ['a', 'b', 'c', 'd']
 
     expect_iter
       pipe 'abcd':
         combinations 2
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         ['ab', 'ac', 'ad', 'bc', 'bd', 'cd']
 
     expect_iter
       pipe 'abcd':
         combinations 3
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         ['abc', 'abd', 'acd', 'bcd']
 
     expect_iter
       pipe 'abcd':
         combinations 4
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         ['abcd']
 
@@ -490,19 +469,19 @@ describe pairs, fn:
   it 'creates pairs', fn:
     expect_iter
       pipe pairs 'ab':
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         ['ab']
 
     expect_iter
       pipe pairs 'abc':
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         ['ab', 'bc']
 
     expect_iter
       pipe pairs 'abcd':
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         ['ab', 'bc', 'cd']
 
@@ -513,21 +492,22 @@ describe chunks, fn:
     expect_iter
       pipe '0123456789':
         chunks 3
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         ['012', '345', '678', '9']
 
     expect_iter
       pipe '0123':
         chunks 2
-        map items: items | join ''
+        map fn items: items | join ''
       to_equal
         ['01', '23']
 
     expect_iter
       pipe '0123':
         chunks 3, 'x'
-        map items: items | join ''
+        # TODO: map ? | join ''
+        map fn items: items | join ''
       to_equal
         ['012', '3xx']
 
@@ -758,12 +738,11 @@ describe equals, fn:
 
 
 describe 'performance', fn:
-
   it 'performs', fn:
     t1 = fn:
       pipe 0:
         unfold fn start: start + 1
-        until fn x: x == 1000
+        while fn x: x != 1000
         map fn item: [item, {reps: [...item | repeat 5], r: [...range 0, 10, 2]}]
         zip ?, count 1000
         map fn [item, cntr]: {cntr, item}
