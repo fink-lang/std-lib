@@ -20,6 +20,14 @@ sort = _sort_
 
 
 
+with_ctx = fn initial_ctx:
+  next_fn = fn iterable, ctx=initial_ctx:
+    _next_ iterable, ctx
+
+  fn items: _iterable_ next_fn, _iter_ items
+
+
+
 fold = fn initial, fold_fn:
   foldr = fn iterable, prev, ctx, fold_fn:
     [item, rest, next_ctx=ctx] = _next_ iterable, ctx
@@ -44,7 +52,7 @@ fold_ac = fn initial, ctx, fold_fn:
     match rest:
       _is_done_ ?: [prev, f_ctx]
       else:
-        [result, next_acc, next_ctx] = fold_fn item, prev, acc, f_ctx
+        [result, next_acc, next_ctx=f_ctx] = fold_fn item, prev, acc, f_ctx
         foldr rest, result, next_acc, next_ctx, fold_fn
 
   fn items:
@@ -100,11 +108,11 @@ filter = fn filter_fn:
 
 filter_ac = fn filter_fn:
   next_fn = fn [iterable, acc], ctx:
-    [item, rest, m_ctx=ctx] = _next_ iterable, ctx
+    [item, rest, f_ctx=ctx] = _next_ iterable, ctx
     match rest:
-      _is_done_ ?: [item, rest, m_ctx]
+      _is_done_ ?: [item, rest, f_ctx]
       else:
-        [keep, next_acc, next_ctx] = filter_fn item, acc, m_ctx
+        [keep, next_acc, next_ctx=f_ctx] = filter_fn item, acc, f_ctx
         match keep:
           true:
             next_iter = _iterable_ next_fn, [rest, next_acc]
@@ -171,7 +179,7 @@ map_ac = fn map_fn:
     match rest:
       _is_done_ ?: [item, rest, m_ctx]
       else:
-        [mitem, next_acc, next_ctx] = map_fn item, acc, m_ctx
+        [mitem, next_acc, next_ctx=m_ctx] = map_fn item, acc, m_ctx
         next_iter = _iterable_ next_fn, [rest, next_acc]
         [mitem, next_iter, next_ctx]
 
