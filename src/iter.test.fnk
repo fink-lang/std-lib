@@ -24,7 +24,7 @@ expect_iter = fn actual, expectation:
 describe 'fold', fn:
   it 'folds items', fn:
     expect
-      '123' | fold_ fn item, prev='':
+      '123' | fold_ '', fn item, prev:
         '${item}${prev}'
       to_equal
         '321'
@@ -36,22 +36,37 @@ describe 'fold', fn:
       to_equal
         'foobar'
 
+  it 'folds without initial', fn:
+    expect
+      '123' | fold_ fn item, prev='':
+        '${item}${prev}'
+      to_equal
+        '321'
+
 
 describe fold_ac, fn:
   it 'folds items with accu', fn:
     expect
-      'abc' | fold_ac fn item, prev='', acc=0:
+      'abc' | fold_ac '', fn item, prev, acc=0:
         ['${prev},${item}${acc}', acc + 1]
       to_equal
-        [',a0,b1,c2', ]
+        ',a0,b1,c2'
 
-  it 'folds items with shared accu', fn:
+  it 'folds with shared accu', fn:
     expect
-      pipe 'abc':
-        fold_ac '.', fn item, prev, , cntr=0:
+      pipe '123':
+        fold_ac '.', 0, fn item, prev, , cntr:
           ['${prev}${item}', , cntr + 1]
       to_equal
-        ['.abc', 3]
+        ['.123', 3]
+
+  it 'folds empty with shared accu', fn:
+    expect
+      pipe '':
+        fold_ac '', 0, fn item, prev, , cntr:
+          ['${prev}${item}', , cntr + 1]
+      to_equal
+        ['', 0]
 
 
 
@@ -333,9 +348,9 @@ describe flatten, fn:
     expect
       pipe 'abc':
         map_ac fn item, , ctx=0:
-          [[ctx, item],, ctx + 1]
+          [[ctx, item], , ctx + 1]
         flatten
-        fold_ fn it, out=[], , ctx:
+        fold_ [], fn it, out, , ctx:
           [...out, '${it}${ctx}']
       to_equal
         ["01", "a1", "12", "b2", "23", "c3"]
@@ -747,12 +762,12 @@ describe 'performance', fn:
         zip ?, count 1000
         map fn [item, cntr]: {cntr, item}
         filter fn {cntr}: cntr % 2 == 0
-        fold_ac 0, fn _, c=0: [c + 1]
-        fn [a]: a
+        fold_ac 0, fn _, c: [c + 1]
+
 
     t2 = fn:
       pipe range 100:
-        fold_ fn: t1 _
+        fold_ 0, fn: t1 _
 
     expect
       t2 _

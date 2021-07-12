@@ -20,7 +20,7 @@ sort = _sort_
 
 
 
-fold = fn initial, fold_fn=initial:
+fold = fn initial, fold_fn:
   foldr = fn iterable, prev, ctx, fold_fn:
     [item, rest, next_ctx=ctx] = _next_ iterable, ctx
     match rest:
@@ -31,13 +31,14 @@ fold = fn initial, fold_fn=initial:
 
   fn items:
     it = _iter_ items
-    [init, ff] = match initial:
-      fold_fn: [, fold_fn]
-      else: [initial, fold_fn]
-    foldr it, init, _, ff
+    match true:
+      is_fn fold_fn:
+        foldr it, initial, _, fold_fn
+      else:
+        foldr it, _, _, initial
 
 
-fold_ac = fn initial, fold_fn=initial:
+fold_ac = fn initial, ctx, fold_fn:
   foldr = fn iterable, prev, acc, ctx, fold_fn:
     [item, rest, f_ctx=ctx] = _next_ iterable, ctx
     match rest:
@@ -48,10 +49,16 @@ fold_ac = fn initial, fold_fn=initial:
 
   fn items:
     it = _iter_ items
-    [init, ff] = match initial:
-      fold_fn: [, fold_fn]
-      else: [initial, fold_fn]
-    foldr it, init, _, _, ff
+    uses_ctx = is_fn fold_fn
+
+    acc_ctx_fold_fn = match true:
+      is_fn fold_fn: [ , ctx, fold_fn]
+      else: [ , , ctx]
+
+    [result, next_ctx] = foldr it, initial, ...acc_ctx_fold_fn
+    match true:
+      uses_ctx: [result, next_ctx]
+      else: result
 
 
 
@@ -106,6 +113,7 @@ filter_ac = fn filter_fn:
             next_fn [rest, next_acc], next_ctx
 
   fn items: _iterable_ next_fn, [_iter_ items]
+
 
 
 
