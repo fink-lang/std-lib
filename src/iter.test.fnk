@@ -1,7 +1,7 @@
 {describe, it, expect, to_equal} = import '@fink/jest/test.fnk'
 
 {fold: fold_, unfold, map, filter, while} = import './iter.fnk'
-{fold_ac, unfold_ac, map_ac, filter_ac, while_ac} = import './iter.fnk'
+{with_ctx, fold_ac, unfold_ac, map_ac, filter_ac, while_ac} = import './iter.fnk'
 
 {
   repeat, count, enumerate, zip, cycle, chain, reverse, sort, unique, flatten
@@ -52,7 +52,7 @@ describe fold_ac, fn:
       to_equal
         ',a0,b1,c2'
 
-  it 'folds with shared accu', fn:
+  it 'folds with shared context', fn:
     expect
       pipe '123':
         fold_ac '.', 0, fn item, prev, , cntr:
@@ -60,7 +60,7 @@ describe fold_ac, fn:
       to_equal
         ['.123', 3]
 
-  it 'folds empty with shared accu', fn:
+  it 'folds empty with shared context', fn:
     expect
       pipe '':
         fold_ac '', 0, fn item, prev, , cntr:
@@ -68,6 +68,15 @@ describe fold_ac, fn:
       to_equal
         ['', 0]
 
+  it 'folds without losing shared context', fn:
+    expect
+      pipe 'abc':
+        map_ac fn item, , cntr:
+          [item, , cntr + 1]
+        fold_ac '', 0, fn item, prev:
+          ['${prev}${item}']
+      to_equal
+        ['abc', 3]
 
 
 describe 'unfold', fn:
@@ -93,7 +102,7 @@ describe unfold_ac, fn:
       to_equal
         [1, 3, 7, 15]
 
-  it 'creates items with shared accu', fn:
+  it 'creates items with shared context', fn:
     expect_iter
       pipe 0:
         unfold_ac fn prev, , ctx='.':
@@ -133,6 +142,19 @@ describe map_ac, fn:
       to_equal
         [1, 3, 5, 7]
 
+  it 'folds without losing shared context', fn:
+    expect
+      pipe 'abc':
+        map_ac fn item, , cntr:
+          [item, , cntr + 1]
+
+        map_ac fn item, , cntr:
+          ['${item}${cntr}']
+
+        fold_ac '', 0, fn item, prev:
+          ['${prev}${item}']
+      to_equal
+        ['a1b2c3', 3]
 
 
 describe 'filter', fn:
@@ -159,6 +181,20 @@ describe filter_ac, fn:
       to_equal
         [2, 3]
 
+  it 'folds without losing shared context', fn:
+    expect
+      pipe 'abbc':
+        map_ac fn item, , cntr:
+          [item, , cntr + 1]
+
+        filter_ac fn item, , cntr:
+          [item != 'b' and cntr != 2]
+
+        fold_ac '', 0, fn item, prev:
+          ['${prev}${item}']
+
+      to_equal
+        ['ac', 4]
 
 
 describe 'while', fn:
@@ -184,6 +220,18 @@ describe while_ac, fn:
         [item >= acc, acc + 1]
       to_equal
         [1, 2, 3, 4]
+
+
+
+describe with_ctx, fn:
+  it 'sets up shared context', fn:
+    expect_iter
+      pipe 'abc':
+        with_ctx 0
+        map_ac fn item, , ctx:
+          ['${item}${ctx}', , ctx + 1]
+      to_equal
+        ['a0', 'b1', 'c2']
 
 
 
